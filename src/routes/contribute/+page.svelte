@@ -5,6 +5,6 @@
 
 	onMount(() => {
 		if (!browser) return;
-		window.location.href = 'https://github.com/Mechdex/mechanics/README.md';
+		window.location.href = 'https://github.com/Mechdex/mechanics/';
 	});
 </script>

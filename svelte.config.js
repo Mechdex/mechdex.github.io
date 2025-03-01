@@ -19,10 +19,6 @@ const config = {
 		paths: {
 			// No base path so pages are served at the root
 			base: ''
-		},
-		prerender: {
-			// Prerender every route (make sure you've configured all dynamic routes)
-			default: true
 		}
 	}
 };

@@ -8,15 +8,20 @@ const config = {
 	
 	kit: {
 		adapter: adapter({
-			strict: false,
+			// Build output goes to 'build'
 			pages: 'build',
 			assets: 'build',
-			fallback: 'index.html'
+			// No fallback needed if every route is prerendered;
+			// if you want an SPA fallback, set this to 'index.html'
+			fallback: null,
+			strict: false
 		}),
 		paths: {
-			base: '' // No base path for org.github.io
+			// No base path so pages are served at the root
+			base: ''
 		},
 		prerender: {
+			// Prerender every route (make sure you've configured all dynamic routes)
 			default: true
 		}
 	}

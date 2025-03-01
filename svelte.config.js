@@ -13,7 +13,7 @@ const config = {
 			assets: 'build',
 			// No fallback needed if every route is prerendered;
 			// if you want an SPA fallback, set this to 'index.html'
-			fallback: null,
+			fallback: 'index.html',
 			strict: false
 		}),
 		paths: {

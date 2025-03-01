@@ -1,4 +1,5 @@
 <script lang="ts">
+	const prerender = true;
 	import Icon from '$lib/Components/Icon.svelte';
 	import '../app.postcss';
 

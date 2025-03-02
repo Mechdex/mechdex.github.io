@@ -20,26 +20,35 @@
 
 	let loadingString: string = '';
 	let allIndexes: Index[] = [];
-	let allSelected = true;
+	let allSelected = false;
 	let allConciseMechanics: ConciseMechanicCard[] = [];
 	let displayMechanics: ConciseMechanicCard[] = [];
 	let selectedCategories: { [category: string]: boolean } = {};
 	let searchStage = '';
 	let loadingDiv: HTMLDivElement | null = null;
+	let initialLoad = true;
+	let compactView = false;
 
 	let drawerStore = getDrawerStore();
 	function onFilterChipClick(event: CustomEvent) {
-		selectedCategories[event.detail.category] = !(
-			selectedCategories[event.detail.category] || false
-		);
-		console.log(selectedCategories);
+		initialLoad = false;
+		const category = event.detail.category;
+		selectedCategories[category] = !selectedCategories[category];
 
+		allSelected = Object.values(selectedCategories).every(Boolean);
+
+		console.log(selectedCategories);
 		loadMechanics();
 	}
 
 	function onAllSelected() {
+		if (allSelected) {
+			allSelected = false;
+		} else {
+			allSelected = true;
+		}
 		for (let category of mechanicsCategories) {
-			selectedCategories[category] = true;
+			selectedCategories[category] = allSelected;
 		}
 
 		loadMechanics();
@@ -146,6 +155,8 @@
 			placeholder="Search for a game mechanic..."
 		/><button on:click={onSearch} class="btn variant-filled-primary"
 			><box-icon name="search"></box-icon></button
+		><button on:click={() => (compactView = !compactView)} class="btn variant-filled-secondary"
+			><box-icon name={compactView ? 'grid' : 'grid-small'}></box-icon></button
 		>
 	</div>
 	<div class="flex flex-row w-full overflow-x-scroll space-x-2 p-2 m-10 custom-scrollbar">
@@ -153,24 +164,29 @@
 			on:click={onAllSelected}
 			class={`btn border`}
 			style={`border-color: rgb(var(--color-primary-500)) !important; ${allSelected ? 'background-color: rgb(var(--color-primary-500));' : ''}`}
-			>All</button
+			>{allSelected ? 'Deselect' : 'Select'} All</button
 		>
 
-		{#each mechanicsCategories as category, i}
+		{#each mechanicsCategories as category, i (category)}
 			<FilterChip {category} on:click={onFilterChipClick} selected={selectedCategories[category]} />
 		{/each}
 	</div>
 
-	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
+	<div
+		class={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 ${compactView ? '!grid-cols-11' : ''} gap-4 w-full`}
+	>
 		{#each displayMechanics as card, i (card)}
 			<div animate:flip={{ duration: 400, easing: expoOut }}>
-				<MechanicCard
-					index={i}
-					category={card.category}
-					name={card.details.name}
-					short_description={card.details.short_description}
-					symbol={card.details.symbol}
-				/>
+				<div class="w-full h-full aspect-square flex flex-col justify-start col-auto">
+					<MechanicCard
+						index={initialLoad ? i : -1}
+						category={card.category}
+						name={card.details.name}
+						short_description={card.details.short_description}
+						symbol={card.details.symbol}
+						{compactView}
+					/>
+				</div>
 			</div>
 		{/each}
 	</div>

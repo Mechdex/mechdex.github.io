@@ -12,14 +12,15 @@
 	export let weight = '';
 	export let short_description: string;
 	export let index: number;
+	export let compactView = false;
 
 	let cardDiv: HTMLDivElement;
 
 	onMount(() => {
 		animate(
 			cardDiv,
-			{ y: [50, 0], opacity: [0, 1] },
-			{ duration: 0.4, delay: index * 0.2, ease: 'backOut' }
+			{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
+			{ duration: 0.3, delay: index == -1 ? 0 : index * 0.1, ease: 'backOut' }
 		);
 		console.log(index);
 	});
@@ -36,13 +37,17 @@
 	role="button"
 	tabindex="0"
 	style={`background-color: ${mechanicColors[category]}`}
-	class="relative flex flex-col p-2 hover:!scale-[103%] hover:shadow-lg cursor-pointer transition-all animate_card_in rounded-lg border aspect-square"
+	class={`relative flex flex-col px-4 py-2 ${compactView ? '!p-1' : ''}  h-full space-y-2 w-full hover:!scale-[103%] hover:shadow-lg cursor-pointer transition-all animate_card_in rounded-lg border aspect-square`}
 >
 	<div class="flex h-[1/5] w-full flex-row justify-start items-center">{symbol}</div>
+	<!-- <hr class="w-full my-2 text-white"/> -->
 	<div class="flex-1 flex flex-col justify-center items-center">
-		<h3 class="h3 font-bold text-center">{name}</h3>
+		<h3 class={`${compactView ? 'text-sm' : 'h4'} font-bold text-center`}>{name}</h3>
 		<hr />
-		<p class="text-center w-full">{short_description}</p>
+		{#if !compactView}
+			<p class="text-center w-full">{short_description}</p>
+		{/if}
 	</div>
+	<!-- <hr class="w-full my-2 text-white"> -->
 	<div class="flex h-[1/5] w-full flex-row justify-end items-center">{category}</div>
 </div>

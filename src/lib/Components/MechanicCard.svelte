@@ -41,15 +41,27 @@
 	style={`background-color: ${mechanicColors[category]}`}
 	class={`relative flex flex-col px-4 py-2 ${compactView ? '!p-1' : ''}  h-full space-y-2 w-full hover:!scale-[103%] hover:shadow-lg cursor-pointer transition-all animate_card_in rounded-lg border aspect-square`}
 >
-	<div class="flex h-[1/5] w-full flex-row justify-start items-center">{symbol}</div>
+	<div
+		class={`flex h-[1/5] w-full flex-row justify-start items-center ${compactView ? '!text-xs !h-[1/8]' : ''}`}
+	>
+		{symbol}
+	</div>
 	<!-- <hr class="w-full my-2 text-white"/> -->
-	<div class="flex-1 flex flex-col justify-center items-center">
-		<h3 class={`${compactView ? 'text-sm' : 'text-lg'} font-bold text-center`}>{name}</h3>
+	<div
+		class={`flex-1 flex flex-col justify-center items-center`}
+	>
+		<h3
+			class={`${compactView ? 'text-md !font-normal' : 'text-lg'} font-bold text-center w-fit break-words`}
+		>
+			{name}
+		</h3>
 		<hr />
 		{#if !compactView}
 			<p class="text-center w-full">{short_description}</p>
 		{/if}
 	</div>
 	<!-- <hr class="w-full my-2 text-white"> -->
-	<div class="flex h-[1/5] w-full flex-row justify-end items-center">{category}</div>
+	{#if !compactView}
+		<div class="flex h-[1/5] w-full flex-row justify-end items-center">{category}</div>
+	{/if}
 </div>

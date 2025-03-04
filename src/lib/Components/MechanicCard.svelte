@@ -23,6 +23,7 @@
 			{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
 			{ duration: 0.3, delay: index == -1 ? 0 : index * 0.1, ease: 'backOut' }
 		);
+
 		console.log(index);
 	});
 

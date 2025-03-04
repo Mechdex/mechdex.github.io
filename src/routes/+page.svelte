@@ -27,6 +27,8 @@
 	import { goto } from '$app/navigation';
 
 	let loadingString: string = '';
+	let loadingMechanics = false;
+
 	let allIndexes: Index[] = [];
 	let allSelected = false;
 	let allConciseMechanics: ConciseMechanicCard[] = [];
@@ -84,6 +86,7 @@
 	}
 	onMount(async () => {
 		drawerStore.close();
+		startLoading();
 		loadingString = 'Loading...';
 		if (browser) {
 			const cachedIndexes = sessionStorage.getItem('_mechdex_cache_allIndexes');
@@ -96,13 +99,9 @@
 				console.log('Fetching indexes.');
 				for (const category of mechanicsCategories) {
 					loadingString = 'Loading ' + category.toLowerCase() + ' mechanics... ';
-					if (loadingDiv) {
-						animate(loadingDiv, { y: [0, -50], opacity: [1, 0] }, { duration: 0.1 });
-						setTimeout(() => {
-							loadingString = 'Loading ' + category + '...';
-							animate(loadingDiv, { y: [50, 0], opacity: [0, 1] }, { duration: 0.1 });
-						}, 100);
-					}
+					// if (loadingDiv) {
+					// 	animate(loadingDiv, { y: [0, -50], opacity: [1, 0] }, { duration: 0.1 });
+					// }
 
 					const response = await fetch(apiURLFormat(category));
 					const indexData = await response.json();
@@ -134,9 +133,45 @@
 			onAllSelected();
 			loadMechanics();
 			loadingString = '';
+			endLoading();
 		}
 	});
 
+	function startLoading() {
+		loadingMechanics = true;
+		setTimeout(() => {
+			if (loadingDiv) {
+				loadingDiv.innerHTML = '<p>Just a second...</p>';
+
+				let i = 0;
+
+				let messages = [
+					'<p>Still going...</p>',
+					'<p>Almost there...</p>',
+					"<p>It usually doesn't take this long...</p>",
+					'<p>What do you think about the current state of the economy?<p>'
+				];
+				setInterval(() => {
+					if (!loadingDiv) return;
+					animate(loadingDiv, { y: [0, -10], opacity: [1, 0] }, { duration: 0.2 });
+					setTimeout(() => {
+						if (!loadingDiv) return;
+
+						loadingDiv.innerHTML = messages[i];
+						animate(loadingDiv, { y: [10, 0], opacity: [0, 1] }, { duration: 0.2 });
+					}, 200);
+					i += 1;
+					i = i % messages.length;
+				}, 5000);
+			}
+		}, 0);
+	}
+
+	function endLoading() {
+		loadingMechanics = false;
+
+		
+	}
 	function onSearch() {
 		loadMechanics();
 	}
@@ -186,7 +221,7 @@
 			><box-icon name="help-circle"></box-icon></button
 		>
 	</div>
-	<div class="flex flex-row w-full overflow-x-scroll space-x-2 p-2 m-10 custom-scrollbar">
+	<div class="flex flex-row w-full overflow-x-scroll space-x-4 p-2 m-10 custom-scrollbar">
 		<button
 			on:click={onAllSelected}
 			class={`btn border`}
@@ -201,8 +236,8 @@
 
 	{#if displayMechanics.length == 0 && !initialLoad}
 		<p in:fly>No mechanics match your search.</p>
-	{:else if displayMechanics.length == 0 && initialLoad}
-		<h1 class="h4 underline underline-offset-4 decoration-primary-500 decoration-2">Loading...</h1>
+	{:else if loadingMechanics}
+		<p in:fade out:fade bind:this={loadingDiv}></p>
 	{/if}
 	<div
 		class={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 ${compactView ? '!grid-cols-11' : ''} gap-4 w-full`}

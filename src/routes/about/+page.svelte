@@ -30,16 +30,16 @@
 				></a
 			> uploaded the following video...
 		</p>
-		<iframe
-			width="560"
-			height="315"
-			src="https://www.youtube-nocookie.com/embed/0m60QbT85Tc?si=MCDnyVqz4aGggRrT"
-			title="YouTube video player"
-			frameborder="0"
-			allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-			referrerpolicy="strict-origin-when-cross-origin"
-			allowfullscreen
-		></iframe>
+		<div class="flex flex-row w-full justify-center">
+			<iframe
+				src="https://www.youtube-nocookie.com/embed/0m60QbT85Tc?si=MCDnyVqz4aGggRrT"
+				title="YouTube video player"
+				frameborder="0"
+				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+				referrerpolicy="strict-origin-when-cross-origin"
+				allowfullscreen
+			></iframe>
+		</div>
 		<p>
 			...in which he briefly displays a hypothetical "periodic table of game mechanics". The idea
 			was really cool, and I saw some others who thought the same, like <a

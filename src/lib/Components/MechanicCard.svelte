@@ -43,7 +43,7 @@
 	<div class="flex h-[1/5] w-full flex-row justify-start items-center">{symbol}</div>
 	<!-- <hr class="w-full my-2 text-white"/> -->
 	<div class="flex-1 flex flex-col justify-center items-center">
-		<h3 class={`${compactView ? 'text-sm' : 'h4'} font-bold text-center`}>{name}</h3>
+		<h3 class={`${compactView ? 'text-sm' : 'text-lg'} font-bold text-center`}>{name}</h3>
 		<hr />
 		{#if !compactView}
 			<p class="text-center w-full">{short_description}</p>

@@ -15,7 +15,7 @@
 </script>
 
 <Modal width="w-[80%]" height="h-[80%]"/>
-<Drawer class="w-[40%] lg:w-[20%]">
+<Drawer class="w-[80%] lg:w-[20%]">
 	<div class="w-full h-full flex flex-col justify-start items-center">
 		<div class="flex flex-row justify-end w-full mb-5">
 			<button class="btn" on:click={() => drawerStore.close()}

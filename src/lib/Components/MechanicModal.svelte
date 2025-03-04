@@ -44,7 +44,7 @@
 {/if}
 {#if mechanic}
 	<div
-		class={`w-[90%] h-[90vh] md:w-[80%] md:h-[80vh] transition-all ${isExpanded ? '!w-full !h-[100vh] !p-1' : ''} overflow-y-scroll bg-surface-800 grid place-items-center p-4 rounded-lg`}
+		class={`w-[90%] h-[90vh] md:w-[80%] md:h-[80vh] shadow-2xl shadow-black transition-all ${isExpanded ? '!w-full !h-[100vh] !p-1' : ''} overflow-y-scroll bg-surface-800 grid place-items-center p-4 rounded-lg`}
 	>
 		<div class="flex-row flex w-full justify-end">
 			{#if mechanicColors[mechanic.category]}

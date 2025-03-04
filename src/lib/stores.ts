@@ -1,6 +1,8 @@
-import { writable } from "svelte/store";
+import { get, writable } from "svelte/store";
 import type { Mechanic, MechanicCategory } from "./types";
 import { browser } from "$app/environment";
+import yaml from 'js-yaml';
+
 
 export let loadedMechanics = writable<Mechanic[]>([]);
 loadedMechanics.subscribe((value) => {
@@ -8,6 +10,7 @@ loadedMechanics.subscribe((value) => {
         sessionStorage.setItem('_mechdex_mechanic_cache', JSON.stringify(value));
     }
 });
+
 
 if (browser) {
     let storedMechanics = sessionStorage.getItem('_mechdex_mechanic_cache');
@@ -67,3 +70,49 @@ export const mechanics: MechanicCategory[] = [
     'UI',
     'World'
 ];
+
+export async function fetchMechanic(data: { symbol: string, category: MechanicCategory }): Promise<Mechanic | { error: string }> {
+    let m = get(loadedMechanics).find((m) => m.symbol == data.symbol);
+    let error = null;
+    let mechanic = null;
+
+    if (!m) {
+        try {
+            const response = await fetch(
+                `https://raw.githubusercontent.com/Mechdex/mechanics/refs/heads/main/${data.category}/${data.symbol}/mechanic.yaml`
+            );
+            const yamlText = await response.text();
+            let m_result = yaml.load(yamlText);
+            if (!m_result) {
+                error = 'Mechanic failed to load.';
+                return { error };
+            }
+
+            if (m_result == '404: Not Found') {
+                error = 'That mechanic was not found.';
+                return { error };
+            }
+            m_result = m_result as any as Mechanic;
+            loadedMechanics.update((mechanics) => [
+                ...mechanics,
+                (m_result as any).mechanic as Mechanic
+            ]);
+            mechanic = (m_result as any).mechanic as Mechanic;
+
+            if (!mechanic) {
+                return {
+                    error: 'Mechanic failed to load (it was nullish).'
+                }
+            } else {
+                return mechanic;
+            }
+        } catch (err) {
+            error = 'Mechanic failed to load.';
+            return { error };
+        }
+    } else {
+        console.log(`Loaded ${data.symbol} from cache.`);
+        mechanic = m;
+        return mechanic;
+    }
+}

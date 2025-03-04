@@ -3,7 +3,7 @@
 	import { mechanicColors } from '$lib/stores';
 	import type { MechanicCategory } from '$lib/types';
 	import { animate } from 'motion';
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
 	export let symbol = '';
 	export let category: MechanicCategory;
@@ -15,6 +15,7 @@
 	export let compactView = false;
 
 	let cardDiv: HTMLDivElement;
+	let dispatcher = createEventDispatcher();
 
 	onMount(() => {
 		animate(
@@ -26,7 +27,7 @@
 	});
 
 	function gotoMechPage() {
-		goto(`/mechanic/${category}/${symbol}`);
+		dispatcher('click', { category, symbol });
 	}
 </script>
 

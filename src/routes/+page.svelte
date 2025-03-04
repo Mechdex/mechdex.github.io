@@ -11,12 +11,13 @@
 	} from '$lib/types';
 	import { onMount, type EventDispatcher } from 'svelte';
 	import { animate, easeInOut, stagger } from 'motion';
-	import { mechanics as mechanicsCategories } from '$lib/stores';
+	import { fetchMechanic, mechanics as mechanicsCategories } from '$lib/stores';
 	import FilterChip from '$lib/Components/FilterChip.svelte';
 	import { flip } from 'svelte/animate';
 	import { expoOut } from 'svelte/easing';
-	import { getDrawerStore } from '@skeletonlabs/skeleton';
+	import { getDrawerStore, getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
 	import { draw } from 'svelte/transition';
+	import MechanicModal from '$lib/Components/MechanicModal.svelte';
 
 	let loadingString: string = '';
 	let allIndexes: Index[] = [];
@@ -30,6 +31,8 @@
 	let compactView = false;
 
 	let drawerStore = getDrawerStore();
+	let modalStore = getModalStore();
+
 	function onFilterChipClick(event: CustomEvent) {
 		initialLoad = false;
 		const category = event.detail.category;
@@ -37,7 +40,6 @@
 
 		allSelected = Object.values(selectedCategories).every(Boolean);
 
-		console.log(selectedCategories);
 		loadMechanics();
 	}
 
@@ -129,6 +131,20 @@
 	function onSearch() {
 		loadMechanics();
 	}
+
+	async function onMechanicCardClick(event: CustomEvent) {
+		await fetchMechanic(event.detail);
+		let m = { ref: MechanicModal };
+		let modal: ModalSettings = {
+			type: 'component',
+			component: m,
+			meta: event.detail,
+			backdropClasses: ''
+		};
+
+		modalStore.trigger(modal);
+		console.log(modal);
+	}
 </script>
 
 <div
@@ -184,6 +200,7 @@
 						name={card.details.name}
 						short_description={card.details.short_description}
 						symbol={card.details.symbol}
+						on:click={onMechanicCardClick}
 						{compactView}
 					/>
 				</div>

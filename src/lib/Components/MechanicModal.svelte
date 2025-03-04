@@ -13,6 +13,7 @@
 	let error = '';
 	let mechanic: Mechanic = {} as Mechanic;
 	let examples: string[] = []; // We need a separate freaking array for this because Svelte refuses to compile anything if mechanic.examples is references in the template
+	let isExpanded = false;
 
 	onMount(async () => {
 		let data = $modalStore[0].meta;
@@ -30,6 +31,11 @@
 		examples = mechanic.examples;
 	});
 
+	function toggleExpand() {
+		isExpanded = !isExpanded;
+		console.log(isExpanded);
+	}
+
 	let drawerStore = getDrawerStore();
 </script>
 
@@ -37,7 +43,22 @@
 	<p>Error: {error}</p>
 {/if}
 {#if mechanic}
-	<div class="w-[80%] h-[80vh] overflow-y-scroll bg-surface-800 grid place-items-center p-4 rounded-lg">
+	<div
+		class={`w-[80%] h-[80vh] ${isExpanded ? '!w-full !h-[100vh] !p-1' : ''} overflow-y-scroll bg-surface-800 grid place-items-center p-4 rounded-lg`}
+	>
+		<div class="flex-row flex w-full justify-end">
+			{#if mechanicColors[mechanic.category]}
+				<button on:click={toggleExpand} class="button"
+					>{#if isExpanded}<Icon
+							rawColor={mechanicColors[mechanic.category]}
+							name="collapse-alt"
+						/>{:else}<Icon
+							rawColor={mechanicColors[mechanic.category]}
+							name="expand-alt"
+						/>{/if}</button
+				>
+			{/if}
+		</div>
 		<!-- Use vh for height otherwise it overflows -->
 		<article class="w-full h-full prose prose-p:text-on-surface-token max-w-none p-2">
 			<h1 class="h1 text-primary-500 text-center">

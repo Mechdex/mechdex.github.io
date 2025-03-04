@@ -15,9 +15,16 @@
 	import FilterChip from '$lib/Components/FilterChip.svelte';
 	import { flip } from 'svelte/animate';
 	import { expoOut } from 'svelte/easing';
-	import { getDrawerStore, getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
-	import { draw } from 'svelte/transition';
+	import {
+		getDrawerStore,
+		getModalStore,
+		ProgressBar,
+		ProgressRadial,
+		type ModalSettings
+	} from '@skeletonlabs/skeleton';
+	import { draw, fade, fly } from 'svelte/transition';
 	import MechanicModal from '$lib/Components/MechanicModal.svelte';
+	import { goto } from '$app/navigation';
 
 	let loadingString: string = '';
 	let allIndexes: Index[] = [];
@@ -44,6 +51,8 @@
 	}
 
 	function onAllSelected() {
+		initialLoad = false;
+
 		if (allSelected) {
 			allSelected = false;
 		} else {
@@ -173,6 +182,8 @@
 			><box-icon name="search"></box-icon></button
 		><button on:click={() => (compactView = !compactView)} class="btn variant-filled-secondary"
 			><box-icon name={compactView ? 'grid' : 'grid-small'}></box-icon></button
+		><button on:click={() => goto('/about')} class="btn variant-filled-secondary"
+			><box-icon name="help-circle"></box-icon></button
 		>
 	</div>
 	<div class="flex flex-row w-full overflow-x-scroll space-x-2 p-2 m-10 custom-scrollbar">
@@ -188,6 +199,11 @@
 		{/each}
 	</div>
 
+	{#if displayMechanics.length == 0 && !initialLoad}
+		<p in:fly>No mechanics match your search.</p>
+	{:else if displayMechanics.length == 0 && initialLoad}
+		<h1 class="h4 underline underline-offset-4 decoration-primary-500 decoration-2">Loading...</h1>
+	{/if}
 	<div
 		class={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 ${compactView ? '!grid-cols-11' : ''} gap-4 w-full`}
 	>

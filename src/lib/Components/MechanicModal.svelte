@@ -44,7 +44,7 @@
 {/if}
 {#if mechanic}
 	<div
-		class={`w-[90%] h-[90vh] md:w-[80%] md:h-[80vh] shadow-2xl shadow-black transition-all ${isExpanded ? '!w-full !h-[100vh] !p-1' : ''} overflow-y-scroll bg-surface-800 grid place-items-center p-4 rounded-lg`}
+		class={`w-[90%] h-[90vh] md:w-[80%] md:h-[80vh] custom-scrollbar shadow-2xl shadow-black transition-all duration-[250ms] ease-out   ${isExpanded ? '!w-full !h-[100vh] !p-1' : ''} overflow-y-scroll bg-surface-800 grid place-items-center p-4 rounded-lg`}
 	>
 		<div class="flex-row flex w-full justify-end">
 			{#if mechanicColors[mechanic.category]}
@@ -61,7 +61,7 @@
 		</div>
 		<!-- Use vh for height otherwise it overflows -->
 		<article class="w-full h-full prose prose-p:text-on-surface-token max-w-none p-2">
-			<h1 class="h1 text-primary-500 text-center">
+			<h1 class="h1 text-primary-500 text-center sm:leading-10 md:leading-normal">
 				<span style={`color: ${mechanicColors[mechanic.category]}`}>{mechanic.category} /</span>
 				<span class="text-on-surface-token">{mechanic.name} / </span>
 				<span
@@ -69,8 +69,9 @@
 					class="text-surface-800 p-1 rounded">{mechanic.symbol}</span
 				>
 			</h1>
-			<h3 class="h3 text-on-surface-token text-center">{mechanic.short_description}</h3>
-			<hr class="w-full my-5" />
+			<h3 class="h3 text-on-surface-token text-center font-thin">{mechanic.short_description}</h3>
+			<hr class="w-full my-5 border-4" />
+
 			<h2 class="h2 text-primary-500">Description</h2>
 			<hr />
 			<p>{mechanic.long_description}</p>
@@ -90,3 +91,27 @@
 		</article>
 	</div>
 {/if}
+
+<style>
+	.custom-scrollbar {
+		scrollbar-width: thin;
+		scrollbar-color: rgb(var(--color-primary-500)) rgb(var(--color-surface-900));
+	}
+
+	.custom-scrollbar::-webkit-scrollbar {
+		height: 1px;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background-color: #888;
+		border-radius: 1px;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+		background-color: #555;
+	}
+
+	.custom-scrollbar::-webkit-scrollbar-track {
+		background: #f1f1f1;
+	}
+</style>

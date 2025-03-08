@@ -15,7 +15,7 @@
 
 <button
 	on:click={onClick}
-	class={`btn border`}
+	class={`btn border transition-all duration-[250ms]`}
 	style={`border-color: ${mechanicColors[category]} !important; ${selected ? 'background-color: ' + mechanicColors[category] + ';' : ''}`}
 	>{category}</button
 >

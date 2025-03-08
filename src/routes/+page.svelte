@@ -25,7 +25,6 @@
 	import { draw, fade, fly } from 'svelte/transition';
 	import MechanicModal from '$lib/Components/MechanicModal.svelte';
 	import { goto } from '$app/navigation';
-
 	let loadingString: string = '';
 	let loadingMechanics = false;
 
@@ -38,6 +37,7 @@
 	let loadingDiv: HTMLDivElement | null = null;
 	let initialLoad = true;
 	let compactView = false;
+	let progressBarMechanics: Record<string, boolean> = {};
 
 	let drawerStore = getDrawerStore();
 	let modalStore = getModalStore();
@@ -135,6 +135,8 @@
 			loadingString = '';
 			endLoading();
 		}
+
+
 	});
 
 	function startLoading() {
@@ -149,6 +151,7 @@
 					'<p>Still going...</p>',
 					'<p>Almost there...</p>',
 					"<p>It usually doesn't take this long...</p>",
+					"<p>Wow, Github's slow today...",
 					'<p>What do you think about the current state of the economy?<p>'
 				];
 				setInterval(() => {
@@ -169,15 +172,45 @@
 
 	function endLoading() {
 		loadingMechanics = false;
-
-		
 	}
 	function onSearch() {
 		loadMechanics();
 	}
 
+	function toggleCompactView() {
+		if (compactView == false) {
+			if (window.innerWidth <= 768) {
+				if (sessionStorage.getItem('_mechdex_compactview_ok')) {
+					compactView = true;
+					return;
+				}
+				modalStore.trigger({
+					type: 'confirm',
+					title: 'Compact View',
+					body: 'Compact view is meant to display a larger grid on larger screens, to look more like a periodic table. On this screen, it might not be usable. Are you sure?',
+
+					buttonTextConfirm: 'Yes',
+
+					buttonTextCancel: 'Nope',
+					response(r) {
+						if (!r) return;
+						compactView = true;
+					}
+				});
+				sessionStorage.setItem('_mechdex_compactview_ok', 'true');
+				return;
+			}
+			compactView = true;
+			return;
+		}
+		compactView = !compactView;
+	}
+
 	async function onMechanicCardClick(event: CustomEvent) {
+		progressBarMechanics[event.detail.symbol] = true;
 		await fetchMechanic(event.detail);
+		progressBarMechanics[event.detail.symbol] = false;
+
 		let m = { ref: MechanicModal };
 		let modal: ModalSettings = {
 			type: 'component',
@@ -215,8 +248,8 @@
 			placeholder="Search for a game mechanic..."
 		/><button on:click={onSearch} class="btn variant-filled-primary"
 			><box-icon name="search"></box-icon></button
-		><button on:click={() => (compactView = !compactView)} class="btn variant-filled-secondary"
-			><box-icon name={compactView ? 'grid' : 'grid-small'}></box-icon></button
+		><button on:click={toggleCompactView} class="btn variant-filled-secondary"
+			><box-icon name={compactView ? 'grid-small' : 'grid'}></box-icon></button
 		><button on:click={() => goto('/about')} class="btn variant-filled-secondary"
 			><box-icon name="help-circle"></box-icon></button
 		>
@@ -224,7 +257,7 @@
 	<div class="flex flex-row w-full overflow-x-scroll space-x-4 p-2 m-10 custom-scrollbar">
 		<button
 			on:click={onAllSelected}
-			class={`btn border`}
+			class={`btn border  transition-all duration-[250ms]`}
 			style={`border-color: rgb(var(--color-primary-500)) !important; ${allSelected ? 'background-color: rgb(var(--color-primary-500));' : ''}`}
 			>{allSelected ? 'Deselect' : 'Select'} All</button
 		>
@@ -235,7 +268,12 @@
 	</div>
 
 	{#if displayMechanics.length == 0 && !initialLoad}
-		<p in:fly>No mechanics match your search.</p>
+		<p in:fly>
+			No mechanics match your search and filters. Try with different search terms and filters. Or
+			<a href="/contribute" class="underline underline-offset-2 decoration-2 decoration-primary-500"
+				>add a missing mechanic</a
+			>.
+		</p>
 	{:else if loadingMechanics}
 		<p in:fade out:fade bind:this={loadingDiv}></p>
 	{/if}
@@ -252,6 +290,7 @@
 						short_description={card.details.short_description}
 						symbol={card.details.symbol}
 						on:click={onMechanicCardClick}
+						loadingMechanic={progressBarMechanics[card.details.symbol]}
 						{compactView}
 					/>
 				</div>

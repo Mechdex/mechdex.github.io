@@ -135,8 +135,6 @@
 			loadingString = '';
 			endLoading();
 		}
-
-
 	});
 
 	function startLoading() {
@@ -194,10 +192,11 @@
 					buttonTextCancel: 'Nope',
 					response(r) {
 						if (!r) return;
+						sessionStorage.setItem('_mechdex_compactview_ok', 'true');
+
 						compactView = true;
 					}
 				});
-				sessionStorage.setItem('_mechdex_compactview_ok', 'true');
 				return;
 			}
 			compactView = true;

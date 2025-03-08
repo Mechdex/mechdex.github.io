@@ -95,7 +95,7 @@
 <style>
 	.custom-scrollbar {
 		scrollbar-width: thin;
-		scrollbar-color: rgb(var(--color-primary-500)) rgb(var(--color-surface-900));
+		/* scrollbar-color: rgb(var(--color-primary-500)) rgb(var(--color-surface-900)); */
 	}
 
 	.custom-scrollbar::-webkit-scrollbar {

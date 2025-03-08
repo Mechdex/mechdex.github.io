@@ -237,7 +237,7 @@
 			<h4 class="h4">Building blocks for your games.</h4>
 		</div>
 	</div>
-	<div class="flex flex-row w-full space-x-2 p-2">
+	<div class="flex md:flex-row w-full space-x-2 p-2">
 		<input
 			class="input flex-1"
 			bind:value={searchStage}
@@ -247,7 +247,7 @@
 			placeholder="Search for a game mechanic..."
 		/><button on:click={onSearch} class="btn variant-filled-primary"
 			><box-icon name="search"></box-icon></button
-		><button on:click={toggleCompactView} class="btn variant-filled-secondary"
+		><button on:click={toggleCompactView} class="btn variant-filled-secondary hidden md:inline-grid"
 			><box-icon name={compactView ? 'grid-small' : 'grid'}></box-icon></button
 		><button on:click={() => goto('/about')} class="btn variant-filled-secondary"
 			><box-icon name="help-circle"></box-icon></button

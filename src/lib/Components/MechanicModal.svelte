@@ -74,7 +74,7 @@
 
 			<h2 class="h2 text-primary-500">Description</h2>
 			<hr />
-			<p>{mechanic.long_description}</p>
+			<p class="whitespace-pre-line">{mechanic.long_description}</p>
 			<h2 class="h2 text-primary-500">Problems This Mechanic Solves</h2>
 			<hr />
 

@@ -14,6 +14,7 @@ export default {
 	plugins: [
 		forms,
 		typography,
+		require('@tailwindcss/container-queries'),
 		skeleton({
 			themes: {
 				preset: [

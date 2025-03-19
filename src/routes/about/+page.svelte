@@ -32,7 +32,9 @@
 		</p>
 		<div class="flex flex-row w-full justify-center">
 			<iframe
+			class="aspect-video"
 				src="https://www.youtube-nocookie.com/embed/0m60QbT85Tc?si=MCDnyVqz4aGggRrT"
+				style="width: 100%; height: 100%"
 				title="YouTube video player"
 				frameborder="0"
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -55,8 +57,8 @@
 				href="https://wikipedia.org/wiki/Game_mechanics"
 				class="!text-on-surface-token"
 				><u class="!underline-offset-2 !decoration-2 !decoration-primary-500">game mechanics</u></a
-			>, primarily those of video games. They're organised into 20 categories and searchable. Anyone
-			can contribute to this database(see Contributing).
+			>, primarily those of video games. They're organised into 22 categories and are all searchable. Anyone
+			can contribute to this database (see Contributing a Mechanic).
 		</p>
 		<p>
 			The idea is that when you're stuck on a design problem, you can come here for inspiration, and

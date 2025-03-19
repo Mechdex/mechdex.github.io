@@ -8,13 +8,20 @@
 	import { getDrawerStore, Modal, storePopup } from '@skeletonlabs/skeleton';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	import { initializeStores, Drawer } from '@skeletonlabs/skeleton';
+	import { gsap } from 'gsap';
 
+	import { Flip } from 'gsap/Flip';
+
+	gsap.registerPlugin(Flip);
 	initializeStores();
 
 	let drawerStore = getDrawerStore();
 </script>
 
-<Modal width="w-[80%]" height="h-[80%]"/>
+<svelte:head>
+	<title>Game Mechanics | Mechdex</title>
+</svelte:head>
+<Modal width="w-[80%]" height="h-[80%]" />
 <Drawer class="w-[80%] lg:w-[20%]">
 	<div class="w-full h-full flex flex-col justify-start items-center">
 		<div class="flex flex-row justify-end w-full mb-5">

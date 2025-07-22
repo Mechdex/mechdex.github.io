@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { fetchMechanic, loadedMechanics, mechanicColors } from '$lib/stores';
+	import { loadedMechanics, mechanicColors } from '$lib/stores';
+	import { fetchMechanicFromServer } from '$lib/mechanics';
 	import type { Mechanic } from '$lib/types.js';
 	import { createEventDispatcher, onMount } from 'svelte';
 	import yaml from 'js-yaml';
@@ -17,7 +18,7 @@
 
 	onMount(async () => {
 		let data = $modalStore[0].meta;
-		let m = await fetchMechanic(data);
+		let m = await fetchMechanicFromServer(data);
 		console.log('Fetch mechanic returned');
 		console.log(m);
 		if ('error' in m) {

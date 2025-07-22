@@ -2,7 +2,7 @@ import { join } from 'path'
 import type { Config } from 'tailwindcss'
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
-import { skeleton } from '@skeletonlabs/tw-plugin'
+import { skeleton } from '@skeletonlabs/tw-plugin';
 import { mechdexTheme } from './theme';
 
 export default {
@@ -14,18 +14,11 @@ export default {
 	plugins: [
 		forms,
 		typography,
-		require('@tailwindcss/container-queries'),
 		skeleton({
 			themes: {
-				preset: [
-					{
-						name: 'seafoam',
-						enhancements: true,
-					},
-				],
 				custom: [
-					mechdexTheme
-				]
+					mechdexTheme,
+				],
 			},
 		}),
 	],

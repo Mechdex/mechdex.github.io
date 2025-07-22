@@ -1,26 +1,29 @@
-export type MechanicCategory =
-    | 'Abilities'
-    | 'Actions'
-    | 'AI'
-    | 'Audio'
-    | 'Building'
-    | 'Camera'
-    | 'Combat'
-    | 'Crafting'
-    | 'Economy'
-    | 'Exploration'
-    | 'Input'
-    | 'Modding'
-    | 'Movement'
-    | 'Multiplayer'
-    | 'Narrative'
-    | 'Physics'
-    | 'Progression'
-    | 'Randomness'
-    | 'Resources'
-    | 'Social'
-    | 'UI'
-    | 'World';
+export const MECHANIC_CATEGORIES = [
+    'Abilities',
+    'Actions',
+    'AI',
+    'Audio',
+    'Building',
+    'Camera',
+    'Combat',
+    'Crafting',
+    'Economy',
+    'Exploration',
+    'Input',
+    'Modding',
+    'Movement',
+    'Multiplayer',
+    'Narrative',
+    'Physics',
+    'Progression',
+    'Randomness',
+    'Resources',
+    'Social',
+    'UI',
+    'World',
+] as const;
+
+export type MechanicCategory = typeof MECHANIC_CATEGORIES[number];
 
 export interface Index {
     index: ConciseMechanic[];
@@ -29,12 +32,8 @@ export interface Index {
 export interface ConciseMechanic {
     symbol: string,
     name: string,
-    short_description: string
-}
-
-export interface ConciseMechanicCard {
-    category: MechanicCategory,
-    details: ConciseMechanic
+    category: string,
+    short_description: string,
 }
 
 export interface Mechanic {

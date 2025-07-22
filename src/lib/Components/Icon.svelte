@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { BoxIcon } from '$lib/boxicons';
-
 	export let name: BoxIcon;
 	export let type: 'regular' | 'solid' | 'logo' = 'regular';
 	export let rawColor = '';
@@ -24,5 +23,6 @@
 </script>
 
 <div class="grid place-items-center">
-	<box-icon {...props}></box-icon>
+	<!-- <box-icon {...props}></box-icon> -->
+	<i class="bx bx-collapse-alt"></i>	
 </div>

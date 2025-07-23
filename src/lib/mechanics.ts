@@ -1,6 +1,11 @@
 import yaml from 'js-yaml';
 import { get } from 'svelte/store';
-import { conciseMechanics, loadedMechanics } from './stores';
+import {
+	_currentLoadingCategoryIndex,
+	conciseMechanics,
+	conciseMinisearch,
+	loadedMechanics
+} from './stores';
 import {
 	type MechanicCategory,
 	type Mechanic,
@@ -53,32 +58,33 @@ export async function fetchMechanicFromServer(data: {
 
 // Do not touch this this is very very fragile for some reason
 export async function populateConciseMechanics() {
-    let _conciseMechanics: ConciseMechanic[] = [];
+	let _conciseMechanics: ConciseMechanic[] = [];
 
-    for (let category of MECHANIC_CATEGORIES) {
-        const URL = `https://raw.githubusercontent.com/Mechdex/mechanics/refs/heads/main/${category}/index.json`;
+	for (let category of MECHANIC_CATEGORIES) {
+		_currentLoadingCategoryIndex.set(MECHANIC_CATEGORIES.indexOf(category));
+		const URL = `https://raw.githubusercontent.com/Mechdex/mechanics/refs/heads/main/${category}/index.json`;
+		
+		try {
+			const response = await fetch(URL);
+			const responseText = await response.text();
+			const parsedIndex: { index: Omit<ConciseMechanic, 'category'>[] } = JSON.parse(responseText);
+			const indexedMechanics = parsedIndex.index.map((mechanic) => ({
+				...mechanic,
+				category
+			}));
 
-        try {
-            const response = await fetch(URL);
-            const responseText = await response.text();
-            const parsedIndex: { index: Omit<ConciseMechanic, 'category'>[] } = JSON.parse(responseText);
-            const indexedMechanics = parsedIndex.index.map((mechanic) => ({
-                ...mechanic,
-                category
-            }));
+			_conciseMechanics = _conciseMechanics.concat(indexedMechanics);
+			console.log(`Loading ${category}`);
+			console.log(parsedIndex);
+			console.log(indexedMechanics);
 
-            _conciseMechanics = _conciseMechanics.concat(indexedMechanics);
-            console.log(`Loading ${category}`);
-            console.log(parsedIndex);
-            console.log(indexedMechanics);
+			conciseMechanics.set(get(conciseMechanics).concat(indexedMechanics));
+			console.log(get(conciseMechanics));
+			console.log('--------------------------------------');
+		} catch (error) {
+			console.error(`Failed to load mechanics for category ${category}:`, error);
+		}
+	}
 
-            conciseMechanics.set(get(conciseMechanics).concat(indexedMechanics));
-            console.log(get(conciseMechanics));
-            console.log('--------------------------------------');
-        } catch (error) {
-            console.error(`Failed to load mechanics for category ${category}:`, error);
-        }
-    }
-
-    // conciseMechanics.set(_conciseMechanics);
+	// conciseMechanics.set(_conciseMechanics);
 }

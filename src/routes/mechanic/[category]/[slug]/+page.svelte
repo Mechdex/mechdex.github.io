@@ -8,9 +8,9 @@
 	import MechanicCard from '$lib/Components/MechanicCard.svelte';
 	import Icon from '$lib/Components/Icon.svelte';
 
-	export let data;
-	let mechanic: Mechanic;
-	let error = '';
+	let { data } = $props();
+	let mechanic: Mechanic = $state();
+	let error = $state('');
 
 	onMount(() => {
 		let m = $loadedMechanics.find((m) => m.symbol == data.slug);
@@ -56,7 +56,7 @@
 	<div class="absolute w-full h-full flex flex-col items-center p-4" transition:fly>
 		<div class="flex flex-row w-full relative justify-center items-center">
 			<div class="grid place-items-center absolute top-0 left-0">
-				<button class="btn" on:click={() => drawerStore.open()}
+				<button class="btn" onclick={() => drawerStore.open()}
 					><Icon name="menu-alt-left"></Icon></button
 				>
 			</div>

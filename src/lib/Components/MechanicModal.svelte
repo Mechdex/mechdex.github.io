@@ -11,10 +11,10 @@
 
 	let modalStore = getModalStore();
 
-	let error = '';
-	let mechanic: Mechanic = {} as Mechanic;
+	let error = $state('');
+	let mechanic: Mechanic = $state({} as Mechanic);
 	let examples: string[] = []; // We need a separate freaking array for this because Svelte refuses to compile anything if mechanic.examples is references in the template
-	let isExpanded = false;
+	let isExpanded = $state(false);
 
 	onMount(async () => {
 		let data = $modalStore[0].meta;
@@ -49,7 +49,7 @@
 	>
 		<div class="flex-row flex w-full justify-end">
 			{#if mechanicColors[mechanic.category]}
-				<button on:click={toggleExpand} class="button"
+				<button onclick={toggleExpand} class="button"
 					>{#if isExpanded}<Icon
 							rawColor={mechanicColors[mechanic.category]}
 							name="collapse-alt"

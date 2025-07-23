@@ -11,7 +11,7 @@
 	import Icon from './Icon.svelte';
 
 	export let index;
-	export let compactView = $gridLayoutType == 'compact';
+	$: compactView = $gridLayoutType == 'compact';
 	export let isLoading = false;
 
 	export let mechanic: ConciseMechanic & { category: string };
@@ -26,6 +26,7 @@
 	});
 
 	onMount(() => {
+		console.log('From card: ', index);
 		animate(
 			cardDiv,
 			{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
@@ -36,12 +37,16 @@
 
 		// fitty('.name-heading', { minSize: 10, multiLine: false});
 		fitty('.description-heading', {
-			minSize: window.innerWidth < 768 ? 12 : 16,
+			minSize: 16,
 			multiLine: true,
 			observeMutations: { subtree: true, childList: true, characterData: true }
 		}); // observeMutations is necessary because navigating away and back to the index page does not make it re-fit
 		if (compactView) {
-			fitty('.name-heading', { minSize: 18, multiLine: true });
+			fitty('.name-heading', {
+				minSize: 18,
+				multiLine: true,
+				observeMutations: { subtree: true, childList: true, characterData: true }
+			});
 		}
 	});
 
@@ -109,7 +114,9 @@
 		<h4 class={`h4 side-heading ${compactView ? '!h6' : ''}`}>{mechanic.symbol}</h4>
 	</div>
 	<div class="w-full h-[86%] flex flex-col justify-center">
-		<h2 class={`h2 name-heading fittext text-center font-semibold break-words leading-tight`}>
+		<h2
+			class={`h2 name-heading fittext text-center ${compactView ? 'font-normal' : 'font-semibold'} break-words leading-tight`}
+		>
 			{mechanic.name}
 		</h2>
 		{#if !compactView}

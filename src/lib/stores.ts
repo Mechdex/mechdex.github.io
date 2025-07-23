@@ -1,7 +1,33 @@
 import { writable } from 'svelte/store';
 import type { ConciseMechanic, Mechanic, MechanicCategory } from './types';
 import { browser } from '$app/environment';
+import MiniSearch from 'minisearch';
 
+export let conciseMinisearch = new MiniSearch({
+	fields: ['symbol', 'category', 'name', 'short_description'],
+	storeFields: ['symbol', 'category', 'name', 'short_description'],
+	idField: 'symbol',
+	searchOptions: {
+		fuzzy: 0.5,
+		tokenize: (t) => t.split('')
+	}
+});
+export let miniSearch = new MiniSearch({
+	fields: [
+		'symbol',
+		'category',
+		'name',
+		'short_description',
+		'long_description',
+		'solved_problems'
+	],
+	searchOptions: {
+		fuzzy: 0.2
+	}
+});
+
+export let activeSearchEngine: 'concise' | 'full' = 'concise';
+export let activeSearch = () => (activeSearchEngine == 'concise' ? conciseMinisearch : miniSearch);
 // I'm not sure if syncing to sessionStorage does anything.
 // conciseMechanics is the cache of the cards on the home screen, containing just the symbol, title, category and a short description.
 // loadedMechanics is the cache of all mechanics.
@@ -19,6 +45,9 @@ if (browser) {
 		}
 	}
 }
+
+export let _currentLoadingCategoryIndex = writable<number>();
+
 conciseMechanics.subscribe((value) => {
 	if (browser) {
 		sessionStorage.setItem('_mechdex_concise_cache', JSON.stringify(value) || '[]');

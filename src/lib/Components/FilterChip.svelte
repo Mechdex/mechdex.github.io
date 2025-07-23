@@ -2,8 +2,12 @@
 	import { mechanicColors } from '$lib/stores';
 	import type { MechanicCategory } from '$lib/types';
 	import { createEventDispatcher } from 'svelte';
-	export let category: MechanicCategory;
-	export let selected = false;
+	interface Props {
+		category: MechanicCategory;
+		selected?: boolean;
+	}
+
+	let { category, selected = $bindable(false) }: Props = $props();
 
 	let dispatcher = createEventDispatcher();
 
@@ -14,7 +18,7 @@
 </script>
 
 <button
-	on:click={onClick}
+	onclick={onClick}
 	class={`btn border transition-all duration-[250ms]`}
 	style={`border-color: ${mechanicColors[category]} !important; ${selected ? 'background-color: ' + mechanicColors[category] + ';' : ''}`}
 	>{category}</button

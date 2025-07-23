@@ -14,7 +14,7 @@
 >
 	<div class="flex flex-row w-full relative justify-center items-center">
 		<div class="grid place-items-center absolute top-0 left-0">
-			<button class="btn" on:click={() => drawerStore.open()}
+			<button class="btn" onclick={() => drawerStore.open()}
 				><Icon name="menu-alt-left"></Icon></button
 			>
 		</div>

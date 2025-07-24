@@ -22,15 +22,16 @@ h5 {
 }
 
 .custom-scrollbar {
+	scrollbar-gutter: stable;
 	scrollbar-width: thin;
 	scrollbar-color: rgb(var(--color-primary-500)) transparent;
 	-ms-overflow-style: auto; /* fallback for Internet Explorer 10+ because why not */
 }
-
+/* 
 .custom-scrollbar::-webkit-scrollbar {
 	width: 8px;
 	height: 8px;
-}
+} */
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
 	background-color: rgb(var(--color-primary-500));

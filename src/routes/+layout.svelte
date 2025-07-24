@@ -150,7 +150,7 @@
 				{/snippet}
 			</AppRail>
 		</div>
-		<div class="relative w-full h-full flex-1">
+		<div class="relative w-full h-full flex-1 overflow-auto p-2">
 			{@render children?.()}
 		</div>
 	</div>

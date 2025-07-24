@@ -1,33 +1,11 @@
 import { writable } from 'svelte/store';
 import type { ConciseMechanic, Mechanic, MechanicCategory } from './types';
 import { browser } from '$app/environment';
-import MiniSearch from 'minisearch';
+import lunr from 'lunr';
 
-export let conciseMinisearch = new MiniSearch({
-	fields: ['symbol', 'category', 'name', 'short_description'],
-	storeFields: ['symbol', 'category', 'name', 'short_description'],
-	idField: 'symbol',
-	searchOptions: {
-		fuzzy: 0.5,
-		tokenize: (t) => t.split('')
-	}
-});
-export let miniSearch = new MiniSearch({
-	fields: [
-		'symbol',
-		'category',
-		'name',
-		'short_description',
-		'long_description',
-		'solved_problems'
-	],
-	searchOptions: {
-		fuzzy: 0.2
-	}
-});
+export let searchEngine: lunr.Index;
+export let setSearchEngine = (e: lunr.Index) => (searchEngine = e);
 
-export let activeSearchEngine: 'concise' | 'full' = 'concise';
-export let activeSearch = () => (activeSearchEngine == 'concise' ? conciseMinisearch : miniSearch);
 // I'm not sure if syncing to sessionStorage does anything.
 // conciseMechanics is the cache of the cards on the home screen, containing just the symbol, title, category and a short description.
 // loadedMechanics is the cache of all mechanics.
@@ -36,8 +14,8 @@ export let conciseMechanics = writable<ConciseMechanic[]>([]);
 if (browser) {
 	let cache = sessionStorage.getItem('_mechdex_concise_cache');
 	if (cache) {
-		console.log('Cache was found for concise mechanics.');
-		console.log(cache);
+		// console.log('Cache was found for concise mechanics.');
+		// console.log(cache);
 		try {
 			conciseMechanics.set(JSON.parse(cache));
 		} catch (e) {
@@ -62,7 +40,7 @@ loadedMechanics.subscribe((value) => {
 });
 
 export let screenType = writable<'sm' | 'md' | 'lg'>();
-export let gridLayoutType = writable<'compact' | 'normal'>();
+export let gridLayoutType = writable<'compact' | 'normal'>('normal');
 if (browser) {
 	let storedMechanics = sessionStorage.getItem('_mechdex_mechanic_cache');
 	let storedConciseMechanics = sessionStorage.getItem('_mechdex_concise_cache');

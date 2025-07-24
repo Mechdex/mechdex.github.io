@@ -15,6 +15,7 @@
 	export let isLoading = false;
 
 	export let mechanic: ConciseMechanic & { category: string };
+	export let initialLoad: boolean = false;
 
 	let color = mechanicColors[mechanic.category as MechanicCategory];
 	let cardDiv: HTMLDivElement;
@@ -26,16 +27,15 @@
 	});
 
 	onMount(() => {
-		console.log('From card: ', index);
-		animate(
-			cardDiv,
-			{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
-			{ duration: 0.3, delay: index == -1 ? 0 : index * 0.1, ease: 'backOut' }
-		);
+		console.log('I am ', mechanic.symbol);
+		if (initialLoad) {
+			animate(
+				cardDiv,
+				{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
+				{ duration: 0.3, delay: index == -1 ? 0 : index * 0.1, ease: 'backOut' }
+			);
+		}
 
-		console.log(mechanic.category);
-
-		// fitty('.name-heading', { minSize: 10, multiLine: false});
 		fitty('.description-heading', {
 			minSize: 16,
 			multiLine: true,
@@ -108,17 +108,17 @@
 	role="button"
 	tabindex="0"
 	style={`background-color: ${color};`}
-	class={`relative flex flex-col px-4 py-2 ${compactView ? '!p-1' : ''} hover:brightness-125 h-full space-y-2 w-full hover:!scale-[103%] hover:shadow-lg cursor-pointer duration-200 transition-all animate_card_in rounded-lg  aspect-square`}
+	class={`relative flex flex-col px-4 py-2 ${compactView ? '!p-1' : ''} hover:brightness-125 h-full space-y-2 col-span-1 row-span-1 w-full hover:!scale-[103%] hover:shadow-lg cursor-pointer duration-200 transition-all animate_card_in rounded-lg  aspect-square`}
 >
 	<div class="w-full h-[16%] flex flex-row justify-start">
 		<h4 class={`h4 side-heading ${compactView ? '!h6' : ''}`}>{mechanic.symbol}</h4>
 	</div>
 	<div class="w-full h-[86%] flex flex-col justify-center">
-		<h2
-			class={`h2 name-heading fittext text-center ${compactView ? 'font-normal' : 'font-semibold'} break-words leading-tight`}
+		<h4
+			class={`h4 name-heading fittext text-center ${compactView ? 'font-normal' : 'font-semibold'} break-words leading-tight`}
 		>
 			{mechanic.name}
-		</h2>
+		</h4>
 		{#if !compactView}
 			<h3 class="h3 description-heading fittext leading-tight text-center font-light">
 				{mechanic.short_description}

@@ -12,6 +12,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@iconify-json/logos": "^1.2.5",
     "@skeletonlabs/skeleton": "^2.11.0",
     "@skeletonlabs/tw-plugin": "^0.4.1",
     "@sveltejs/adapter-auto": "^3.0.0",
@@ -42,9 +43,11 @@
     "@floating-ui/dom": "^1.6.13",
     "@iconify/json": "^2.2.359",
     "@types/js-yaml": "^4.0.9",
+    "@types/lunr": "^2.3.7",
     "fitty": "^2.4.2",
     "gsap": "^3.13.0",
     "js-yaml": "^4.1.0",
+    "lunr": "^2.3.9",
     "material-icons-svelte": "^1.0.3",
     "minisearch": "^7.1.2",
     "motion": "^12.23.6",

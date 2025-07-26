@@ -14,7 +14,9 @@
 		AppRailAnchor,
 		getDrawerStore,
 		Modal,
-		storePopup
+		storePopup,
+		TabAnchor,
+		TabGroup
 	} from '@skeletonlabs/skeleton';
 	import { initializeStores, Drawer } from '@skeletonlabs/skeleton';
 	import { gsap } from 'gsap';
@@ -73,8 +75,52 @@
 </svelte:head>
 <Modal width="w-[80%]" height="h-[80%]" />
 
-{#if $screenType == 'sm'}<div></div>{:else if $screenType == 'md' || $screenType == 'lg'}
-	<div class="absolute w-full h-full flex flex-row">
+{#if $screenType == 'sm'}<div class="absolute flex h-full w-full flex-col">
+		{@render children?.()}
+
+		<TabGroup
+			justify="justify-center"
+			active="variant-filled-primary"
+			hover=""
+			flex="flex-1 lg:flex-none"
+			rounded=""
+			border=""
+			class="fixed bottom-0 w-full bg-surface-800"
+		>
+			<TabAnchor href="/" selected={page.url.pathname === '/'}>
+				<svelte:fragment slot="lead">
+					<div class="gsap-apprail-tile-0 grid h-full w-full flex-1 place-items-center">
+						<Home
+							style={`font-size: 2rem; color: rgb(var(${page.url.pathname == '/' ? '--color-surface-800' : '--color-surface-400'}))`}
+						></Home>
+					</div>
+				</svelte:fragment>
+				<span>Home</span>
+			</TabAnchor>
+			<TabAnchor href="/about" selected={page.url.pathname === '/about'}>
+				<svelte:fragment slot="lead">
+					<div class="gsap-apprail-tile-0 grid h-full w-full flex-1 place-items-center">
+						<Help
+							style={`font-size: 2rem; color: rgb(var(${page.url.pathname == '/about' ? '--color-surface-800' : '--color-surface-400'}))`}
+						></Help>
+					</div>
+					<span>About</span>
+				</svelte:fragment>
+			</TabAnchor>
+			<TabAnchor href="/" selected={page.url.pathname === '/contribute'}>
+				<svelte:fragment slot="lead"
+					><div class="gsap-apprail-tile-0 grid h-full w-full flex-1 place-items-center">
+						<Plus
+							style={`font-size: 2rem; color: rgb(var(${page.url.pathname == '/contribute' ? '--color-surface-800' : '--color-surface-400'}))`}
+						></Plus>
+					</div></svelte:fragment
+				>
+				<span>Contribute</span>
+			</TabAnchor>
+			<!-- ... -->
+		</TabGroup>
+	</div>{:else if $screenType == 'md' || $screenType == 'lg'}
+	<div class="absolute flex h-full w-full flex-row">
 		<div>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -86,8 +132,8 @@
 						onmouseleave={() => gsapOnApprailTileLeave(0)}
 					>
 						<AppRailAnchor href="/">
-							<div class="w-full h-full flex flex-col justify-between relative">
-								<div class="w-full h-full grid place-items-center gsap-apprail-tile-0 flex-1">
+							<div class="relative flex h-full w-full flex-col justify-between">
+								<div class="gsap-apprail-tile-0 grid h-full w-full flex-1 place-items-center">
 									<Home
 										style={`font-size: 2rem; color: rgb(var(${page.url.pathname == '/' ? '--color-primary-500' : '--color-surface-400'}))`}
 									></Home>
@@ -95,7 +141,7 @@
 							</div>
 						</AppRailAnchor>
 						<hr
-							class="!border-primary-500 border-2 w-full translate-x-[-100%] gsap-apprail-border-0"
+							class="gsap-apprail-border-0 w-full translate-x-[-100%] border-2 !border-primary-500"
 						/>
 					</div>
 
@@ -105,8 +151,8 @@
 						onmouseleave={() => gsapOnApprailTileLeave(1)}
 					>
 						<AppRailAnchor href="/about">
-							<div class="w-full h-full flex flex-col justify-between relative">
-								<div class="w-full h-full grid place-items-center gsap-apprail-tile-0 flex-1">
+							<div class="relative flex h-full w-full flex-col justify-between">
+								<div class="gsap-apprail-tile-0 grid h-full w-full flex-1 place-items-center">
 									<Help
 										style={`font-size: 2rem; color: rgb(var(${page.url.pathname == '/about' ? '--color-primary-500' : '--color-surface-400'}))`}
 									></Help>
@@ -114,7 +160,7 @@
 							</div>
 						</AppRailAnchor>
 						<hr
-							class="!border-primary-500 border-2 w-full translate-x-[-100%] gsap-apprail-border-1"
+							class="gsap-apprail-border-1 w-full translate-x-[-100%] border-2 !border-primary-500"
 						/>
 					</div>
 					<div
@@ -123,8 +169,8 @@
 						onmouseleave={() => gsapOnApprailTileLeave(2)}
 					>
 						<AppRailAnchor href="/contribute">
-							<div class="w-full h-full flex flex-col justify-between relative">
-								<div class="w-full h-full grid place-items-center gsap-apprail-tile-0 flex-1">
+							<div class="relative flex h-full w-full flex-col justify-between">
+								<div class="gsap-apprail-tile-0 grid h-full w-full flex-1 place-items-center">
 									<Plus
 										style={`font-size: 2rem; color: rgb(var(${page.url.pathname == '/contribute' ? '--color-primary-500' : '--color-surface-400'}))`}
 									></Plus>
@@ -132,7 +178,7 @@
 							</div>
 						</AppRailAnchor>
 						<hr
-							class="!border-primary-500 border-2 w-full translate-x-[-100%] gsap-apprail-border-2"
+							class="gsap-apprail-border-2 w-full translate-x-[-100%] border-2 !border-primary-500"
 						/>
 					</div>
 				{/snippet}
@@ -140,7 +186,7 @@
 
 				<!-- --- -->
 				{#snippet trail()}
-					<div class="text-center flex flex-col text-sm/2 leading-snug">
+					<div class="text-sm/2 flex flex-col text-center leading-snug">
 						<p class="m-0">
 							Alpha<br />
 							<span class="text-primary-500">•</span> <br />
@@ -150,7 +196,7 @@
 				{/snippet}
 			</AppRail>
 		</div>
-		<div class="relative w-full h-full flex-1 overflow-auto p-2">
+		<div class="relative h-full w-full flex-1 overflow-auto p-2">
 			{@render children?.()}
 		</div>
 	</div>

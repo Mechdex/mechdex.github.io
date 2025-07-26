@@ -11,22 +11,22 @@
 </script>
 
 <div
-	class="absolute bg-surface-900-token w-full min-h-full max-h-fit flex flex-col items-center space-y-8 p-4"
+	class="bg-surface-900-token flex max-h-fit min-h-full w-full flex-col items-center space-y-8 p-4"
 >
-	<div class="flex flex-row w-full relative justify-center items-center">
-		<div class="flex-1 flex flex-col left-0 justify-center items-center">
+	<div class="relative flex w-full flex-row items-center justify-center">
+		<div class="left-0 flex flex-1 flex-col items-center justify-center">
 			<h1 class="h1 text-center text-primary-500">About</h1>
 		</div>
 	</div>
-	<article class="w-full h-full prose text-on-surface-token">
+	<article class="prose h-full w-full text-on-surface-token">
 		<p>
 			On February 25th, 2025, <a href="https://www.youtube.com/@GMTK" class="!text-on-surface-token"
-				><u class="!underline-offset-2 !decoration-2 !decoration-primary-500"
+				><u class="!decoration-primary-500 !decoration-2 !underline-offset-2"
 					>Mark Brown from Game Maker's Toolkit</u
 				></a
 			> uploaded the following video...
 		</p>
-		<div class="flex flex-row w-full justify-center">
+		<div class="flex w-full flex-row justify-center">
 			<iframe
 				class="aspect-video"
 				src="https://www.youtube-nocookie.com/embed/0m60QbT85Tc?si=MCDnyVqz4aGggRrT"
@@ -43,15 +43,15 @@
 			was really cool, and I saw some others who thought the same, like <a
 				href="https://www.youtube.com/@MrEnvisioner"
 				class="!text-on-surface-token"
-				><u class="!underline-offset-2 !decoration-2 !decoration-primary-500">@Mr Envisioner</u></a
+				><u class="!decoration-primary-500 !decoration-2 !underline-offset-2">@Mr Envisioner</u></a
 			>. I had a rudimentary idea on how to build it, so I tried. This is the result, a very hastily
 			put-together prototype.
 		</p>
-		<img class="border border-primary-500 rounded-lg my-0" src="periodic_table_gmtk.png" />
-		<p class="text-right w-full text-xs">
-			Credit: <YoutubeIcon class="inline mx-1" /><a
+		<img class="my-0 rounded-lg border border-primary-500" src="periodic_table_gmtk.png" />
+		<p class="w-full text-right text-xs">
+			Credit: <YoutubeIcon class="mx-1 inline" /><a
 				href="https://wikipedia.org/wiki/Game_mechanics"
-				class="!text-on-surface-token !decoration-primary-500 !underline-offset-2 !decoration-2"
+				class="!decoration-primary-500 !decoration-2 !underline-offset-2 !text-on-surface-token"
 				>Game Maker's Toolkit</a
 			>
 		</p>
@@ -61,7 +61,7 @@
 			Mechdex is short for "mechanics index". It organizes modular, atomic <a
 				href="https://wikipedia.org/wiki/Game_mechanics"
 				class="!text-on-surface-token"
-				><u class="!underline-offset-2 !decoration-2 !decoration-primary-500">game mechanics</u></a
+				><u class="!decoration-primary-500 !decoration-2 !underline-offset-2">game mechanics</u></a
 			>, primarily those of video games. They're organised into 22 categories and are all
 			searchable. Anyone can contribute to this database (see <i>Contributing a Mechanic</i>).
 		</p>
@@ -89,7 +89,7 @@
 			To contribute, go to the <a
 				href="https://github.com/Mechdex/mechanics"
 				class="!text-on-surface-token"
-				><u class="!underline-offset-2 !decoration-2 !decoration-primary-500"
+				><u class="!decoration-primary-500 !decoration-2 !underline-offset-2"
 					>the Github repository</u
 				></a
 			> and read the README.md file there. You have to open a pull request to add a mechanic.

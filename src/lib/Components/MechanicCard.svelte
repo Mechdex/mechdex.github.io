@@ -5,7 +5,7 @@
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import fitty from 'fitty';
 	import { animate } from 'motion';
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import gsap from 'gsap';
 	import { fade, fly } from 'svelte/transition';
 	import Icon from './Icon.svelte';
@@ -27,7 +27,6 @@
 	});
 
 	onMount(() => {
-		console.log('I am ', mechanic.symbol);
 		if (initialLoad) {
 			animate(
 				cardDiv,
@@ -38,14 +37,14 @@
 
 		fitty('.description-heading', {
 			minSize: 16,
-			multiLine: true,
-			observeMutations: { subtree: true, childList: true, characterData: true }
+			multiLine: true
+			// observeMutations: { subtree: true, childList: true, characterData: true }
 		}); // observeMutations is necessary because navigating away and back to the index page does not make it re-fit
 		if (compactView) {
 			fitty('.name-heading', {
 				minSize: 18,
-				multiLine: true,
-				observeMutations: { subtree: true, childList: true, characterData: true }
+				multiLine: true
+				// observeMutations: { subtree: true, childList: true, characterData: true }
 			});
 		}
 	});
@@ -97,6 +96,19 @@
 			ease: 'expo.out'
 		});
 	}
+
+	// onDestroy(() => {
+	// 	fitty('.fittext').forEach((f) => {
+	// 		f.unsubscribe();
+	// 	});
+
+	// 	fitty('.description-heading').forEach((f) => {
+	// 		f.unsubscribe();
+	// 	});
+	// 	fitty('.name-heading').forEach((f) => {
+	// 		f.unsubscribe();
+	// 	});
+	// });
 </script>
 
 <div
@@ -108,30 +120,30 @@
 	role="button"
 	tabindex="0"
 	style={`background-color: ${color};`}
-	class={`relative flex flex-col px-4 py-2 ${compactView ? '!p-1' : ''} hover:brightness-125 h-full space-y-2 col-span-1 row-span-1 w-full hover:!scale-[103%] hover:shadow-lg cursor-pointer duration-200 transition-all animate_card_in rounded-lg  aspect-square`}
+	class={`relative flex flex-col px-4 py-2 ${compactView ? '!p-1' : ''} animate_card_in col-span-1 row-span-1 aspect-square h-full w-full cursor-pointer space-y-2 rounded-lg transition-all duration-200 hover:!scale-[103%] hover:shadow-lg  hover:brightness-125`}
 >
-	<div class="w-full h-[16%] flex flex-row justify-start">
-		<h4 class={`h4 side-heading ${compactView ? '!h6' : ''}`}>{mechanic.symbol}</h4>
+	<div class="absolute left-4 top-2">
+		<h4 class={`side-heading h4 ${compactView ? '!h6' : ''}`}>{mechanic.symbol}</h4>
 	</div>
-	<div class="w-full h-[86%] flex flex-col justify-center">
+	<div class="flex h-[86%] w-full flex-col justify-center">
 		<h4
-			class={`h4 name-heading fittext text-center ${compactView ? 'font-normal' : 'font-semibold'} break-words leading-tight`}
+			class={`name-heading fittext h4 text-center ${compactView ? 'font-normal' : 'font-semibold'} break-words leading-tight`}
 		>
 			{mechanic.name}
 		</h4>
 		{#if !compactView}
-			<h3 class="h3 description-heading fittext leading-tight text-center font-light">
+			<h3 class="description-heading fittext h3 text-center font-light leading-tight">
 				{mechanic.short_description}
 			</h3>
 		{/if}
 	</div>
-	<div class="w-full h-[16%] flex flex-row justify-center items-center">
+	<div class="gap-2r absolute bottom-2 right-4 flex items-center">
 		{#if isLoading}<div in:fly={{ y: 50, duration: 200 }} class="contents">
 				<ProgressRadial width="w-[1.3em]"></ProgressRadial>
 			</div>{/if}
 
 		<div class="flex-1"></div>
-		<h4 class="h4 side-heading">{mechanic.category}</h4>
+		<h4 class="side-heading h4">{mechanic.category}</h4>
 	</div>
 </div>
 
@@ -171,5 +183,10 @@
 	}
 	.side-heading {
 		font-size: 1em !important;
+	}
+	.fittext-bope {
+		/* Ensures fitty doesn't flash large text before adjusting */
+		display: inline-block;
+		white-space: nowrap;
 	}
 </style>

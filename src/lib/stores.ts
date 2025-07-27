@@ -25,7 +25,7 @@ if (browser) {
 }
 
 export let _currentLoadingCategoryIndex = writable<number>();
-
+export let sidePanelState = writable<'full' | 'split' | 'hidden'>('hidden');
 conciseMechanics.subscribe((value) => {
 	if (browser) {
 		sessionStorage.setItem('_mechdex_concise_cache', JSON.stringify(value) || '[]');
@@ -49,7 +49,7 @@ if (browser) {
 		loadedMechanics.set(JSON.parse(storedMechanics));
 	}
 	if (storedConciseMechanics) {
-		loadedMechanics.set(JSON.parse(storedConciseMechanics));
+		conciseMechanics.set(JSON.parse(storedConciseMechanics));
 	}
 }
 

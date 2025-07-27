@@ -3,10 +3,11 @@
 	import GridIcon from '~icons/mdi/grid';
 	import GridLargeIcon from '~icons/mdi/grid-large';
 	import SelectAllIcon from '~icons/mdi/select-all';
+	import PinIcon from '~icons/mdi/pin';
 	import MagnifyIcon from '~icons/mdi/magnify';
 	import ChevronLeftIcon from '~icons/mdi/chevron-left';
 	import ChevronRightIcon from '~icons/mdi/chevron-right';
-
+	import CloseIcon from '~icons/mdi/close';
 	import {
 		_currentLoadingCategoryIndex,
 		conciseMechanics,
@@ -14,19 +15,28 @@
 		searchEngine,
 		mechanicColors,
 		setSearchEngine,
-		screenType
+		screenType,
+		sidePanelState
 	} from '$lib/stores';
-	import { onMount } from 'svelte';
-	import { populateConciseMechanics } from '$lib/mechanics';
+	import { onMount, tick } from 'svelte';
+	import { fetchMechanicFromServer, populateConciseMechanics } from '$lib/mechanics';
 	import MechanicCard from '$lib/Components/MechanicCard.svelte';
 	import { flip } from 'svelte/animate';
 	import { expoOut } from 'svelte/easing';
-	import { MECHANIC_CATEGORIES, type ConciseMechanic } from '$lib/types';
+	import {
+		MECHANIC_CATEGORIES,
+		type ConciseMechanic,
+		type Mechanic,
+		type MechanicCategory
+	} from '$lib/types';
 	import { get } from 'svelte/store';
 	import { filter, ProgressBar } from '@skeletonlabs/skeleton';
 	import lunr from 'lunr';
-	import { fade, fly } from 'svelte/transition';
-	import { stopPropagation } from 'svelte/legacy';
+	import { fade, fly, scale } from 'svelte/transition';
+	import { Flip } from 'gsap/dist/Flip';
+	import { gsap } from 'gsap/dist/gsap';
+
+	import fitty from 'fitty';
 
 	async function setupConciseMechanics() {
 		const response = fetch(
@@ -117,6 +127,19 @@
 		return mechanics;
 	}
 
+	async function onMechanicClick(mechanic: { symbol: string; category: MechanicCategory }) {
+		let m = await fetchMechanicFromServer({ symbol: mechanic.symbol, category: mechanic.category });
+
+		if ('error' in m && m.error) {
+			throw m.error;
+		}
+		_currentDisplayedMechanic = m as Mechanic;
+		console.log(m);
+
+		if ($sidePanelState == 'hidden') {
+			await setSidePanelState('split');
+		}
+	}
 	function refreshMechanics(mechanics?: ConciseMechanic[]) {
 		console.log('Setting mechanics');
 		displayedMechanics = mechanics || startMechanicSearch();
@@ -190,6 +213,7 @@
 	);
 	let _currentSearchTerm = $state('');
 	let _filterChipNavDivScroll = $state(0);
+	let _currentDisplayedMechanic: Mechanic | undefined = $state();
 
 	function toggleMechanicCategoryFilter(i: number) {
 		console.log(activeCategoryFilters);
@@ -214,13 +238,42 @@
 	}
 
 	function updateGridSize() {
-		num_cols = $screenType == 'sm' ? 2 : M_COL(window.innerWidth);
+		if ($sidePanelState == 'hidden') {
+			num_cols = $screenType == 'sm' ? 2 : M_COL(window.innerWidth);
+		} else {
+			num_cols = $screenType == 'md' ? 2 : 3;
+		}
+	}
+
+	async function setSidePanelState(state: 'hidden' | 'full' | 'split') {
+		let _oldState = Flip.getState('.side-panel');
+		$sidePanelState = state;
+		updateGridSize();
+		await tick();
+		await new Promise((r) => setTimeout(r, 0));
+		fitty('.mechanic-heading', { minSize: 10, maxSize: 50 });
+		gsap.set('.side-panel', {
+			opacity: state == 'hidden' ? '100%' : '0%',
+			ease: 'expo',
+			duration: 0.4
+		});
+		gsap.to('.main-panel', { width: state == 'hidden' ? '100%' : '50%', ease: 'expo' });
+		gsap.to('.side-panel', {
+			opacity: state == 'hidden' ? '0%' : '100%',
+			ease: 'expo',
+			duration: 0.4,
+			delay: 0.1
+		});
 	}
 </script>
 
 <svelte:window onresize={() => updateGridSize()} />
-<div class="custom-scrollbar flex h-full w-full flex-row">
-	<div class=" custom-scrollbar flex w-full flex-col space-y-6 overflow-y-scroll p-2">
+<div
+	class="custom-scrollbar relative flex h-full w-full flex-row space-x-4 overflow-x-hidden overflow-y-hidden p-2"
+>
+	<div
+		class="main-panel custom-scrollbar z-30 flex flex-col space-y-6 overflow-x-hidden overflow-y-scroll bg-surface-900 p-2"
+	>
 		<!-- Headers -->
 		<div>
 			<h1 class="h1 text-center text-primary-500">Mechdex</h1>
@@ -228,15 +281,15 @@
 		</div>
 
 		<!-- Search -->
-		<div class="sticky top-0 z-30 flex w-full flex-row space-x-2">
+		<div class="sticky top-0 z-40 flex w-full flex-row space-x-2">
 			<!-- svelte-ignore component_name_lowercase -->
 			<input
-				onkeydown={(e) => e.key == 'Enter' && startMechanicSearch()}
+				onkeydown={(e) => e.key == 'Enter' && refreshMechanics()}
 				class="input flex-1 px-3 outline-none active:border-primary-500"
 				bind:value={inputStage}
 				placeholder="Search for a mechanic's title, description, use cases..."
 			/>
-			<button class="variant-filled-primary btn" onclick={startMechanicSearch}
+			<button class="variant-filled-primary btn" onclick={() => refreshMechanics()}
 				><SearchIcon style="font-size: 1.2rem;"></SearchIcon></button
 			>
 			{#if $screenType != 'sm'}
@@ -266,7 +319,10 @@
 				{#if _filterChipNavDivScroll > 0}
 					<button
 						transition:fly={{ x: -20, easing: expoOut }}
-						onclick={() => _setFilterChipNavScroll(0)}
+						onclick={(e) => {
+							e.stopPropagation();
+							_setFilterChipNavScroll(0);
+						}}
 						class="absolute left-0 z-20 w-fit rounded-full bg-slate-800 shadow-xl shadow-black active:scale-90"
 					>
 						<ChevronLeftIcon style="font-size: 2rem;" />
@@ -275,7 +331,10 @@
 				{#if _filterChipNavDivScroll < 1}
 					<button
 						transition:fly={{ x: 20, easing: expoOut }}
-						onclick={() => _setFilterChipNavScroll(1)}
+						onclick={(e) => {
+							e.stopPropagation();
+							_setFilterChipNavScroll(1);
+						}}
 						class="absolute right-0 z-20 w-fit rounded-full bg-slate-800 shadow-xl shadow-black active:scale-90"
 					>
 						<ChevronRightIcon style="font-size: 2rem;" />
@@ -293,7 +352,10 @@
 					{#each MECHANIC_CATEGORIES as category, i}
 						<button
 							class="btn flex-shrink-0"
-							onclick={() => toggleMechanicCategoryFilter(i)}
+							onclick={(e) => {
+								e.stopPropagation(); // Thanks for calling my event handler twice every 3rd click, Vite/Svelte/Rich Harris!
+								toggleMechanicCategoryFilter(i);
+							}}
 							style={`background-color: ${activeCategoryFilters[i] ? mechanicColors[category] : 'transparent'}; border: solid 1px ${mechanicColors[category]}`}
 						>
 							{category}
@@ -325,7 +387,12 @@
 			{#each displayedMechanics as mechanic, i (mechanic.symbol)}
 				<div animate:flip={{ duration: 400, easing: expoOut }}>
 					<div class="col-auto flex aspect-square h-full w-full flex-col justify-start">
-						<MechanicCard index={initialLoad ? i : -1} {mechanic} {initialLoad} />
+						<MechanicCard
+							onclick={onMechanicClick}
+							index={initialLoad ? i : -1}
+							{mechanic}
+							{initialLoad}
+						/>
 					</div>
 				</div>
 			{/each}
@@ -358,5 +425,64 @@
 				</div>
 			{/if}
 		</div>
+	</div>
+	<div
+		style="width: {$sidePanelState != 'hidden' ? 100 : 0}%"
+		class="custom-scrollbar side-panel absolute h-full overflow-hidden overflow-y-auto rounded-lg p-0"
+	>
+		{#if _currentDisplayedMechanic}
+			<div class="absolute right-0 z-0 flex h-full w-[50%] flex-row">
+				<div
+					class="custom-scrollbar flex h-full max-h-full w-full flex-1 flex-col items-center overflow-y-auto rounded-lg bg-surface-800 p-10"
+				>
+					<flex
+						class="h-full w-full flex-col items-center justify-center space-y-4 rounded-lg px-4"
+					>
+						<div class="flex w-full flex-col items-center justify-center space-y-4 rounded">
+							<h1
+								class="h3 inline-block rounded-lg"
+								style:color={mechanicColors[_currentDisplayedMechanic.category]}
+							>
+								{_currentDisplayedMechanic.category}
+							</h1>
+							<h1
+								class="mechanic-heading h1 inline-flex flex-row items-center justify-center space-x-2"
+							>
+								<span class="text-nowrap">{_currentDisplayedMechanic.name}</span> /
+								<span
+									class="rounded-lg p-2"
+									style:background-color={mechanicColors[_currentDisplayedMechanic.category]}
+									>{_currentDisplayedMechanic.symbol}</span
+								>
+							</h1>
+							<h2 class="h4 text-center font-light">
+								{_currentDisplayedMechanic.short_description}
+							</h2>
+						</div>
+						<hr class="!my-8 !border-primary-500" />
+						<article
+							class="prose h-fit prose-h2:text-primary-500 prose-p:text-white prose-li:text-white prose-li:marker:text-primary-500"
+						>
+							<h2 class="h2">Description</h2>
+							<p>{_currentDisplayedMechanic.long_description}</p>
+							<h2 class="h2">Problems Solved by this Mechanic</h2>
+							<p>{_currentDisplayedMechanic.solved_problems}</p>
+						</article>
+					</flex>
+					<article class=""></article>
+				</div>
+				<div class="m-2 flex h-full shrink-0 flex-col space-y-2">
+					<button
+						onclick={() => setSidePanelState('hidden')}
+						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700 hover:brightness-110"
+						><CloseIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" /></button
+					>
+					<button
+						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700 hover:brightness-110"
+						><PinIcon font-size="1.2rem" /></button
+					>
+				</div>
+			</div>
+		{/if}
 	</div>
 </div>

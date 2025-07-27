@@ -47,7 +47,7 @@
 			>. I had a rudimentary idea on how to build it, so I tried. This is the result, a very hastily
 			put-together prototype.
 		</p>
-		<img class="my-0 rounded-lg border border-primary-500" src="periodic_table_gmtk.png" />
+		<img alt="A frame from a GMTK video on game mechanics, displaying a periodic table of game mechanics as elements" class="my-0 rounded-lg border border-primary-500" src="periodic_table_gmtk.png" />
 		<p class="w-full text-right text-xs">
 			Credit: <YoutubeIcon class="mx-1 inline" /><a
 				href="https://wikipedia.org/wiki/Game_mechanics"

@@ -22,7 +22,7 @@
 	import { gsap } from 'gsap';
 	import { screenType } from '$lib/stores';
 	import { onMount } from 'svelte';
-	import { Flip } from 'gsap/Flip';
+	import { Flip } from 'gsap/dist/Flip';
 	import { page } from '$app/state';
 	import { get } from 'svelte/store';
 	interface Props {
@@ -120,7 +120,7 @@
 			<!-- ... -->
 		</TabGroup>
 	</div>{:else if $screenType == 'md' || $screenType == 'lg'}
-	<div class="absolute flex h-full w-full flex-row">
+	<div class="absolute flex h-full w-full flex-row p-0 m-0">
 		<div>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -196,7 +196,7 @@
 				{/snippet}
 			</AppRail>
 		</div>
-		<div class="relative h-full w-full flex-1 overflow-auto p-2">
+		<div class="relative h-full w-full flex-1 overflow-auto">
 			{@render children?.()}
 		</div>
 	</div>

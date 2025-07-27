@@ -32,7 +32,7 @@ export interface Index {
 export interface ConciseMechanic {
     symbol: string,
     name: string,
-    category: string,
+    category: MechanicCategory,
     short_description: string,
 }
 

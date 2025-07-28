@@ -6,7 +6,7 @@
 	import Help from '~icons/mdi/help-circle';
 	import Plus from '~icons/mdi/plus';
 	import '../app.postcss';
-
+	
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import {
@@ -20,11 +20,12 @@
 	} from '@skeletonlabs/skeleton';
 	import { initializeStores, Drawer } from '@skeletonlabs/skeleton';
 	import { gsap } from 'gsap';
-	import { screenType } from '$lib/stores';
+	import { gsap_xto, screenType } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { Flip } from 'gsap/dist/Flip';
 	import { page } from '$app/state';
 	import { get } from 'svelte/store';
+	import { prefersReducedMotion } from 'svelte/motion';
 	interface Props {
 		children?: import('svelte').Snippet;
 	}
@@ -51,20 +52,23 @@
 	onMount(() => {
 		updateScreenType();
 		window.addEventListener('resize', updateScreenType);
+
+		if (prefersReducedMotion) {
+		}
 	});
 
 	function gsapOnApprailTileHover(tileIndex: number) {
 		// gsap.set(`.gsap-apprail-border-${tileIndex}`, { translateX: '-100%' });
 
-		gsap.to(`.gsap-apprail-border-${tileIndex}`, { translateX: '0%', ease: 'expo.out' });
+		gsap_xto(`.gsap-apprail-border-${tileIndex}`, { translateX: '0%', ease: 'expo.out' });
 	}
 
 	function gsapOnApprailTileLeave(tileIndex: number) {
-		gsap
-			.to(`.gsap-apprail-border-${tileIndex}`, { translateX: '100%', ease: 'expo.out' })
-			.then((r) => {
+		gsap_xto(`.gsap-apprail-border-${tileIndex}`, { translateX: '100%', ease: 'expo.out' }).then(
+			(r) => {
 				gsap.set(`.gsap-apprail-border-${tileIndex}`, { translateX: '-100%' });
-			});
+			}
+		);
 	}
 
 	let path = $derived(page.url.pathname);
@@ -85,7 +89,7 @@
 			flex="flex-1 lg:flex-none"
 			rounded=""
 			border=""
-			class="fixed bottom-0 w-full bg-surface-800"
+			class="fixed bottom-0 z-50 w-full bg-surface-800"
 		>
 			<TabAnchor href="/" selected={page.url.pathname === '/'}>
 				<svelte:fragment slot="lead">
@@ -120,7 +124,7 @@
 			<!-- ... -->
 		</TabGroup>
 	</div>{:else if $screenType == 'md' || $screenType == 'lg'}
-	<div class="absolute flex h-full w-full flex-row p-0 m-0">
+	<div class="absolute m-0 flex h-full w-full flex-row p-0">
 		<div>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->

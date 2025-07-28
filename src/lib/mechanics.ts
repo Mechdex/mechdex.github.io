@@ -26,7 +26,7 @@ import {
 export async function fetchMechanicFromServer(data: {
 	symbol: string;
 	category: MechanicCategory;
-}): Promise<Mechanic | { error: string }> {
+}): Promise<Mechanic | { error: string; content: string }> {
 	const cachedMechanic = get(loadedMechanics).find((m) => m.symbol === data.symbol);
 	if (cachedMechanic) {
 		console.log(`Loaded ${data.symbol} from cache.`);
@@ -41,13 +41,14 @@ export async function fetchMechanicFromServer(data: {
 		const parsedMechanic = (yaml.load(responseText) as any).mechanic as Mechanic;
 
 		if (!parsedMechanic || responseText === '404: Not Found') {
-			return { error: 'Mechanic not found or failed to load.' };
+			return { error: 'Mechanic not found or failed to load.', content: responseText };
 		}
 
 		loadedMechanics.update((mechanics) => [...mechanics, parsedMechanic]);
+		console.log(parsedMechanic);
 		return parsedMechanic;
 	} catch (err) {
-		return { error: 'Mechanic failed to load.' };
+		return { error: 'Mechanic failed to load.', content: err as string };
 	}
 }
 

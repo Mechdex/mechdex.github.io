@@ -1,16 +1,27 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import type { ConciseMechanic, Mechanic, MechanicCategory } from './types';
 import { browser } from '$app/environment';
 import lunr from 'lunr';
+import { prefersReducedMotion } from 'svelte/motion';
+import { gsap } from 'gsap/dist/gsap';
+import { prefersReducedMotionStore } from '@skeletonlabs/skeleton';
 
 export let searchEngine: lunr.Index;
 export let setSearchEngine = (e: lunr.Index) => {
 	searchEngine = e;
-}
+};
 
 // I'm not sure if syncing to sessionStorage does anything.
 // conciseMechanics is the cache of the cards on the home screen, containing just the symbol, title, category and a short description.
 // loadedMechanics is the cache of all mechanics.
+
+export function gsap_xto(targets: gsap.TweenTarget, vars: gsap.TweenVars): gsap.core.Tween {
+	console.log(get(prefersReducedMotionStore));
+	if (get(prefersReducedMotionStore)) {
+		return gsap.set(targets, vars);
+	}
+	return gsap.to(targets, vars);
+}
 
 export let conciseMechanics = writable<ConciseMechanic[]>([]);
 if (browser) {
@@ -54,6 +65,8 @@ if (browser) {
 		conciseMechanics.set(JSON.parse(storedConciseMechanics));
 	}
 }
+
+export let pinnedMechanics = writable<Mechanic[]>([]);
 
 export const mechanicColors: Record<MechanicCategory, string> = {
 	Abilities: '#857300', // Dark Blue

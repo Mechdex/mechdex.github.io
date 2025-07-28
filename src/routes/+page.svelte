@@ -9,13 +9,16 @@
 	import { gsap } from 'gsap/dist/gsap';
 	import lunr from 'lunr';
 	import fitty from 'fitty';
-	import { ProgressBar } from '@skeletonlabs/skeleton';
+	import { popup, ProgressBar } from '@skeletonlabs/skeleton';
+	import { marked } from 'marked';
 
 	// Internal Project Imports ($lib)
 	import {
 		conciseMechanics,
 		gridLayoutType,
+		gsap_xto,
 		mechanicColors,
+		pinnedMechanics,
 		screenType,
 		searchEngine,
 		setSearchEngine,
@@ -35,6 +38,10 @@
 	import ChevronRightIcon from '~icons/mdi/chevron-right';
 	import CloseIcon from '~icons/mdi/close';
 	import PinIcon from '~icons/mdi/pin';
+	import HammerWrenchIcon from '~icons/mdi/hammer-wrench';
+	import ChevronDoubleLeftIcon from '~icons/mdi/chevron-double-left';
+	import ChevronDoubleRightIcon from '~icons/mdi/chevron-double-right';
+	import { prefersReducedMotionStore } from '@skeletonlabs/skeleton';
 
 	// --- SVELTE 5 STATE ---
 
@@ -50,6 +57,7 @@
 	let filterChipNavDiv: HTMLDivElement;
 	let filterChipNavScrollPercent = $state(0);
 	let isSidePanelChanging = $state(false);
+	let isDisplayedMechanicChanging = $state(false);
 
 	// --- DERIVED STATE ---
 
@@ -177,12 +185,13 @@
 	async function handleMechanicClick(mechanic: ConciseMechanic) {
 		const m = await fetchMechanicFromServer(mechanic);
 		if ('error' in m && m.error) {
-			console.error(m.error);
+			console.log(m.error);
+			console.error(m.content);
 			return;
 		}
 
 		currentDisplayedMechanic = m as Mechanic;
-
+		await tick();
 		if ($sidePanelState === 'hidden') {
 			await setSidePanelState('split');
 		}
@@ -198,35 +207,57 @@
 		fitty('.mechanic-heading', { minSize: 10, maxSize: 50 });
 
 		if (state == 'hidden') {
-			gsap
-				.to('.main-panel', {
-					width: state === 'hidden' ? '100%' : '50%',
-					ease: 'expo.out',
-					duration: 0.6
-				})
+			gsap_xto('.main-panel', {
+				width: state === 'hidden' ? '100%' : '50%',
+				opacity: 1,
+				ease: 'expo.out',
+				duration: 0.6
+			})
 				.then(() => {
 					isSidePanelChanging = false;
+					fitty.fitAll();
 				})
 				.then((r) => {
-					gsap.to('.side-panel', {
+					gsap_xto('.side-panel', {
 						opacity: state === 'hidden' ? 0 : 1,
+						width: '50%',
 						ease: 'expo.out',
 						duration: 0.6,
 						delay: 0.1
 					});
 				});
-		} else {
-			gsap
-				.to('.main-panel', {
-					width: '50%',
-					ease: 'expo.out',
-					duration: 0.6
-				})
-				.then(() => {
-					isSidePanelChanging = false;
-				});
-			gsap.to('.side-panel', {
+		} else if (state == 'split') {
+			gsap_xto('.main-panel', {
+				width: '50%',
 				opacity: 1,
+
+				ease: 'expo.out',
+				duration: 0.6
+			}).then(() => {
+				isSidePanelChanging = false;
+				fitty.fitAll();
+			});
+			gsap_xto('.side-panel', {
+				opacity: 1,
+				width: '50%',
+				ease: 'expo.out',
+				duration: 0.6,
+				delay: 0.1
+			});
+		} else {
+			gsap_xto('.main-panel', {
+				width: '0%',
+				opacity: 0,
+				ease: 'expo.out',
+				duration: 0.6
+			}).then(() => {
+				isSidePanelChanging = false;
+				fitty.fitAll();
+			});
+			gsap_xto('.side-panel', {
+				opacity: 1,
+				width: '100%',
+
 				ease: 'expo.out',
 				duration: 0.6,
 				delay: 0.1
@@ -242,7 +273,11 @@
 		}
 
 		if ($gridLayoutType == 'compact') {
-			num_cols += $screenType === 'md' ? 1 : 2;
+			if ($sidePanelState === 'hidden') {
+				num_cols += $screenType === 'md' ? 0 : 1;
+			} else {
+				num_cols += $screenType === 'md' ? 1 : 2;
+			}
 		}
 	}
 
@@ -325,7 +360,11 @@
 				<!-- Scroll Buttons -->
 				{#if filterChipNavScrollPercent > 0.01}
 					<button
-						transition:fly={{ x: -20, duration: 200, easing: expoOut }}
+						transition:fly={{
+							x: -20,
+							duration: $prefersReducedMotionStore ? 0 : 200,
+							easing: expoOut
+						}}
 						onclick={() => setFilterChipNavScroll(0)}
 						class="absolute left-0 top-1/2 z-20 w-fit -translate-y-1/2 rounded-full bg-surface-800/80 shadow-xl shadow-black backdrop-blur-sm active:scale-90"
 					>
@@ -334,7 +373,11 @@
 				{/if}
 				{#if filterChipNavScrollPercent < 0.99}
 					<button
-						transition:fly={{ x: 20, duration: 200, easing: expoOut }}
+						transition:fly={{
+							x: 20,
+							duration: $prefersReducedMotionStore ? 0 : 200,
+							easing: expoOut
+						}}
 						onclick={() => setFilterChipNavScroll(1)}
 						class="absolute right-0 top-1/2 z-20 w-fit -translate-y-1/2 rounded-full bg-surface-800/80 shadow-xl shadow-black backdrop-blur-sm active:scale-90"
 					>
@@ -389,20 +432,22 @@
 
 		<div
 			style:grid-template-columns="repeat({num_cols}, minmax(0, 1fr))"
-			class="relative grid h-full min-h-[50vh] w-full auto-rows-min gap-4 rounded-lg bg-surface-800 p-4"
+			class="relative grid h-full min-h-[50vh] w-full auto-rows-min gap-4 rounded-lg bg-surface-800 p-4 transition-all duration-200"
+			style:opacity={isSidePanelChanging ? '0%' : '100%'}
 		>
 			{#each displayedMechanics as mechanic (mechanic.symbol)}
-				<div animate:flip={{ duration: 400, easing: expoOut }}>
-					{#if !isSidePanelChanging}
-						<div class="col-auto flex aspect-square h-full w-full transition-all duration-0">
-							<MechanicCard
-								isHidden={isSidePanelChanging}
-								{mechanic}
-								index={initialLoad ? displayedMechanics.indexOf(mechanic) : -1}
-								onclick={() => handleMechanicClick(mechanic)}
-							/>
-						</div>
-					{/if}
+				<div animate:flip={{ duration: $prefersReducedMotionStore ? 0 : 400, easing: expoOut }}>
+					<div
+						class="col-auto flex aspect-square h-full w-full transition-all duration-0"
+						style:opacity={isSidePanelChanging ? '0%' : '100%'}
+					>
+						<MechanicCard
+							isHidden={isSidePanelChanging}
+							{mechanic}
+							index={initialLoad ? displayedMechanics.indexOf(mechanic) : -1}
+							onclick={() => handleMechanicClick(mechanic)}
+						/>
+					</div>
 				</div>
 			{:else}
 				<div
@@ -463,27 +508,92 @@
 						<h2 class="h4 font-light">{currentDisplayedMechanic.short_description}</h2>
 					</div>
 
-					<hr class="!my-8 !border-primary-500" />
+					<hr class="side-panel-hr !my-8 !border-primary-500 transition-all duration-200" />
 
 					<article
-						class="prose prose-h2:text-primary-500 prose-p:text-white prose-li:text-white prose-li:marker:text-primary-500"
+						class="prose max-w-none prose-h2:text-primary-500 prose-h3:text-white prose-p:text-white prose-li:text-white prose-li:marker:text-primary-500"
 					>
 						<h2>Description</h2>
-						<p>{currentDisplayedMechanic.long_description}</p>
+						<p>{@html marked.parse(currentDisplayedMechanic.long_description)}</p>
 						<h2>Problems Solved</h2>
-						<p>{currentDisplayedMechanic.solved_problems}</p>
+						{#each currentDisplayedMechanic.solved_problems as problem}
+							<h3 class="h3 underline decoration-primary-500 decoration-2 underline-offset-2">
+								{problem.title}
+							</h3>
+							<p>{problem.description}</p>
+						{/each}
+						<h2>Examples</h2>
+						{#each currentDisplayedMechanic.examples as example}
+							<h3 class="h3 underline decoration-primary-500 decoration-2 underline-offset-2">
+								{example.title}
+							</h3>
+							<p>{example.description}</p>
+						{/each}
 					</article>
 				</div>
-				<div class="m-2 flex flex-col space-y-2">
+				<div class="m-2 flex flex-col space-y-4 pb-5">
 					<button
 						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700"
 						onclick={() => setSidePanelState('hidden')}
 					>
 						<CloseIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
 					</button>
-					<button class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700">
-						<PinIcon color="rgb(var(--color-secondary-500))" font-size="1.2rem" />
+					<button
+						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700"
+						onclick={() =>
+							$sidePanelState == 'full' ? setSidePanelState('split') : setSidePanelState('full')}
+					>
+						{#if $sidePanelState == 'full'}
+							<ChevronDoubleRightIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
+						{:else}
+							<ChevronDoubleLeftIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
+						{/if}
 					</button>
+					<button
+						onclick={() =>
+							$pinnedMechanics.find((p) => p.symbol == currentDisplayedMechanic?.symbol)
+								? ($pinnedMechanics =
+										[...$pinnedMechanics].filter(
+											(p) => p.symbol != currentDisplayedMechanic?.symbol
+										) || [])
+								: ($pinnedMechanics = [...$pinnedMechanics, currentDisplayedMechanic as Mechanic])}
+						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700 {$pinnedMechanics.find(
+							(f) => f.symbol == currentDisplayedMechanic?.symbol
+						)
+							? 'variant-ringed-primary'
+							: ''}"
+					>
+						<PinIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
+					</button>
+					{#each $pinnedMechanics as mechanic, i}
+						<button
+							class="aspect-square rounded-lg border p-1 text-center text-white"
+							style="border-color: {mechanicColors[mechanic.category]} !important"
+							style:background-color={currentDisplayedMechanic.symbol == mechanic.symbol
+								? mechanicColors[mechanic.category]
+								: 'transparent'}
+							onclick={() => (currentDisplayedMechanic = mechanic)}
+						>
+							{mechanic.symbol}
+						</button>
+					{/each}
+					<div class="flex-1"></div>
+					{#if !Object.hasOwn(currentDisplayedMechanic, 'isHumanWritten') || !(currentDisplayedMechanic as Mechanic & { isHumanWritten: boolean }).isHumanWritten}
+						<div class="mb-10 aspect-square w-full">
+							<div class="peer aspect-square w-full">
+								<HammerWrenchIcon class="w-full text-lg text-surface-100" />
+							</div>
+							<div
+								class="card variant-filled-surface pointer-events-none fixed bottom-0 right-0 z-[60] p-4 opacity-0 transition-opacity peer-hover:opacity-100"
+							>
+								<p>
+									This mechanic's data is a placeholder generated by AI. It will be phased out soon
+									for better-quality, human-written content.
+								</p>
+								<p>If you'd like to rewrite it yourself, please contribute to the database!</p>
+							</div>
+						</div>
+					{/if}
 				</div>
 			</div>
 		{/if}

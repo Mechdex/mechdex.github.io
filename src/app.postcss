@@ -41,3 +41,10 @@ h5 {
 .custom-scrollbar::-webkit-scrollbar-track {
 	background: transparent;
 }
+
+@media (prefers-reduced-motion) {
+	* {
+		transition-duration: 0s !important;
+		animation-duration: 0s !important;
+	}
+}

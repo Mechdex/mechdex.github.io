@@ -1,47 +1,47 @@
 export const MECHANIC_CATEGORIES = [
-    'Abilities',
-    'Actions',
-    'AI',
-    'Audio',
-    'Building',
-    'Camera',
-    'Combat',
-    'Crafting',
-    'Economy',
-    'Exploration',
-    'Input',
-    'Modding',
-    'Movement',
-    'Multiplayer',
-    'Narrative',
-    'Physics',
-    'Progression',
-    'Randomness',
-    'Resources',
-    'Social',
-    'UI',
-    'World',
+	'Abilities',
+	'Actions',
+	'AI',
+	'Audio',
+	'Building',
+	'Camera',
+	'Combat',
+	'Crafting',
+	'Economy',
+	'Exploration',
+	'Input',
+	'Modding',
+	'Movement',
+	'Multiplayer',
+	'Narrative',
+	'Physics',
+	'Progression',
+	'Randomness',
+	'Resources',
+	'Social',
+	'UI',
+	'World'
 ] as const;
 
-export type MechanicCategory = typeof MECHANIC_CATEGORIES[number];
+export type MechanicCategory = (typeof MECHANIC_CATEGORIES)[number];
 
 export interface Index {
-    index: ConciseMechanic[];
+	index: ConciseMechanic[];
 }
 
 export interface ConciseMechanic {
-    symbol: string,
-    name: string,
-    category: MechanicCategory,
-    short_description: string,
+	symbol: string;
+	name: string;
+	category: MechanicCategory;
+	short_description: string;
 }
 
 export interface Mechanic {
-    symbol: string,
-    category: MechanicCategory
-    name: string,
-    short_description: string,
-    long_description: string,
-    solved_problems: string,
-    examples: string[]
+	symbol: string;
+	category: MechanicCategory;
+	name: string;
+	short_description: string;
+	long_description: string;
+	solved_problems: { title: string; description: string }[];
+	examples: { title: string; description: string }[];
 }

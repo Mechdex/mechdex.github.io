@@ -4,7 +4,9 @@ import { browser } from '$app/environment';
 import lunr from 'lunr';
 
 export let searchEngine: lunr.Index;
-export let setSearchEngine = (e: lunr.Index) => (searchEngine = e);
+export let setSearchEngine = (e: lunr.Index) => {
+	searchEngine = e;
+}
 
 // I'm not sure if syncing to sessionStorage does anything.
 // conciseMechanics is the cache of the cards on the home screen, containing just the symbol, title, category and a short description.

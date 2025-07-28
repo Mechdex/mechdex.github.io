@@ -5,7 +5,7 @@
 	// Library Imports
 	import { flip } from 'svelte/animate';
 	import { expoOut } from 'svelte/easing';
-	import { fly } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { gsap } from 'gsap/dist/gsap';
 	import lunr from 'lunr';
 	import fitty from 'fitty';
@@ -49,6 +49,7 @@
 	// Element Bindings & UI State
 	let filterChipNavDiv: HTMLDivElement;
 	let filterChipNavScrollPercent = $state(0);
+	let isSidePanelChanging = $state(false);
 
 	// --- DERIVED STATE ---
 
@@ -91,8 +92,20 @@
 		const cache = sessionStorage.getItem('_mechdex_concise_cache');
 		try {
 			if (cache) {
-				conciseMechanics.set(JSON.parse(cache));
+				try {
+					if (JSON.parse(cache).length > 0) {
+						console.log('Using cache');
+						conciseMechanics.set(JSON.parse(cache));
+					} else {
+						console.log('No cache');
+						await populateConciseMechanics();
+					}
+				} catch (e) {
+					console.error(e);
+					await populateConciseMechanics();
+				}
 			} else {
+				console.log('No cache');
 				await populateConciseMechanics();
 			}
 		} catch (e) {
@@ -107,12 +120,16 @@
 		}
 
 		const results = searchEngine.search(inputStage);
+		console.log('Results for search:');
+		console.log(results);
 		if (results.length === 0) {
 			return [];
 		}
 
 		const mechanicsMap = new Map($conciseMechanics.map((m) => [m.symbol, m]));
-		return results.map((res) => mechanicsMap.get(res.ref)).filter(Boolean) as ConciseMechanic[];
+		console.log('Mechanics are: ', $conciseMechanics);
+		console.log();
+		return results.map((r) => mechanicsMap.get(r.ref)) as ConciseMechanic[];
 	}
 
 	function shuffleMechanics(mechanics: ConciseMechanic[]): ConciseMechanic[] {
@@ -128,7 +145,8 @@
 	function refreshDisplayedMechanics() {
 		currentSearchTerm = inputStage;
 		let mechanics = searchMechanics();
-
+		console.log('While refreshing, ');
+		console.log(mechanics);
 		// Shuffle the full list when not searching. Search results are relevance-ordered.
 		if (!currentSearchTerm.trim()) {
 			mechanics = shuffleMechanics(mechanics);
@@ -172,6 +190,7 @@
 
 	async function setSidePanelState(state: 'hidden' | 'full' | 'split') {
 		$sidePanelState = state;
+		isSidePanelChanging = true;
 		updateGridSize();
 
 		await tick();
@@ -185,6 +204,9 @@
 					ease: 'expo.out',
 					duration: 0.6
 				})
+				.then(() => {
+					isSidePanelChanging = false;
+				})
 				.then((r) => {
 					gsap.to('.side-panel', {
 						opacity: state === 'hidden' ? 0 : 1,
@@ -194,11 +216,15 @@
 					});
 				});
 		} else {
-			gsap.to('.main-panel', {
-				width: '50%',
-				ease: 'expo.out',
-				duration: 0.6
-			});
+			gsap
+				.to('.main-panel', {
+					width: '50%',
+					ease: 'expo.out',
+					duration: 0.6
+				})
+				.then(() => {
+					isSidePanelChanging = false;
+				});
 			gsap.to('.side-panel', {
 				opacity: 1,
 				ease: 'expo.out',
@@ -213,6 +239,10 @@
 			num_cols = $screenType === 'sm' ? 2 : Math.max(1, Math.floor(0.0055 * window.innerWidth - 2));
 		} else {
 			num_cols = $screenType === 'md' ? 2 : 3;
+		}
+
+		if ($gridLayoutType == 'compact') {
+			num_cols += $screenType === 'md' ? 1 : 2;
 		}
 	}
 
@@ -248,7 +278,7 @@
 <div class="relative flex h-full w-full flex-row overflow-hidden p-2">
 	<!-- Main Content Panel -->
 	<div
-		class="main-panel custom-scrollbar offset z-30 flex w-full flex-col space-y-6 overflow-y-scroll bg-surface-900 p-2 overflow-x-hidden" 
+		class="main-panel custom-scrollbar offset z-30 flex w-full flex-col space-y-6 overflow-x-hidden overflow-y-scroll bg-surface-900 p-2"
 	>
 		<!-- Header -->
 		<header class="text-center">
@@ -269,14 +299,17 @@
 			</button>
 			{#if $screenType !== 'sm'}
 				<button
-					class="variant-filled-secondary btn"
+					class="variant-ringed-primary btn"
 					title="Toggle grid layout"
-					onclick={() => gridLayoutType.set($gridLayoutType === 'normal' ? 'compact' : 'normal')}
+					onclick={() => {
+						gridLayoutType.set($gridLayoutType === 'normal' ? 'compact' : 'normal');
+						updateGridSize();
+					}}
 				>
 					{#if $gridLayoutType === 'compact'}
-						<GridLargeIcon style="font-size: 1.2rem; color: rgb(var(--color-surface-900))" />
+						<GridLargeIcon style="font-size: 1.2rem; color: rgb(var(--color-primary-500))" />
 					{:else}
-						<GridIcon style="font-size: 1.2rem; color: rgb(var(--color-surface-900))" />
+						<GridIcon style="font-size: 1.2rem; color: rgb(var(--color-primary-500))" />
 					{/if}
 				</button>
 			{/if}
@@ -318,6 +351,7 @@
 					>
 						<SelectAllIcon style="font-size: 1.2rem;" />
 					</button>
+					<div class="h-full border-l-primary-500"></div>
 					{#each MECHANIC_CATEGORIES as category, i}
 						<button
 							class="btn flex-shrink-0"
@@ -352,19 +386,23 @@
 		{/if}
 
 		<!-- Mechanic Card Grid -->
+
 		<div
 			style:grid-template-columns="repeat({num_cols}, minmax(0, 1fr))"
-			class="relative grid min-h-[50vh] w-full auto-rows-min gap-4 rounded-lg bg-surface-800 p-4 h-full"
+			class="relative grid h-full min-h-[50vh] w-full auto-rows-min gap-4 rounded-lg bg-surface-800 p-4"
 		>
 			{#each displayedMechanics as mechanic (mechanic.symbol)}
 				<div animate:flip={{ duration: 400, easing: expoOut }}>
-					<div class="col-auto flex aspect-square h-full w-full">
-						<MechanicCard
-							{mechanic}
-							index={initialLoad ? displayedMechanics.indexOf(mechanic) : -1}
-							onclick={() => handleMechanicClick(mechanic)}
-						/>
-					</div>
+					{#if !isSidePanelChanging}
+						<div class="col-auto flex aspect-square h-full w-full transition-all duration-0">
+							<MechanicCard
+								isHidden={isSidePanelChanging}
+								{mechanic}
+								index={initialLoad ? displayedMechanics.indexOf(mechanic) : -1}
+								onclick={() => handleMechanicClick(mechanic)}
+							/>
+						</div>
+					{/if}
 				</div>
 			{:else}
 				<div
@@ -398,14 +436,14 @@
 
 	<!-- Side Panel for Mechanic Details -->
 	<div
-		class="side-panel custom-scrollbar absolute right-0 h-full w-1/2 overflow-y-auto rounded-lg"
+		class="side-panel custom-scrollbar absolute right-0 h-full w-1/2 overflow-y-auto rounded-lg bg-surface-800"
 		style="box-shadow: inset 2px 2px 16px black"
 		style:opacity={$sidePanelState === 'hidden' ? 0 : 1}
 		style:pointer-events={$sidePanelState === 'hidden' ? 'none' : 'auto'}
 	>
 		{#if currentDisplayedMechanic}
 			<div class="flex h-full w-full flex-row">
-				<div class="custom-scrollbar flex-1 overflow-y-auto rounded-lg p-10 pr-0">
+				<div class="custom-scrollbar pr-15 flex-1 overflow-y-auto rounded-lg p-10">
 					<div class="flex w-full flex-col items-center space-y-6 text-center">
 						<h3 class="h3" style:color={mechanicColors[currentDisplayedMechanic.category]}>
 							{currentDisplayedMechanic.category}
@@ -444,7 +482,7 @@
 						<CloseIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
 					</button>
 					<button class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700">
-						<PinIcon font-size="1.2rem" />
+						<PinIcon color="rgb(var(--color-secondary-500))" font-size="1.2rem" />
 					</button>
 				</div>
 			</div>

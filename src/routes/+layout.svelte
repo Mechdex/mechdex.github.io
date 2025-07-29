@@ -1,5 +1,4 @@
 <script lang="ts">
-	const prerender = true;
 	import Icon from '$lib/Components/Icon.svelte';
 	import ArrowBack from '~icons/mdi/arrow-back';
 	import Home from '~icons/material-symbols/home-rounded';

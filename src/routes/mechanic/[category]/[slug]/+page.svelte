@@ -20,7 +20,6 @@
 			)
 				.then((response) => response.text())
 				.then((yamlText) => {
-					console.log(yamlText);
 					let m_result = yaml.load(yamlText);
 					if (!m_result) {
 						error = 'Mechanic failed to load.';

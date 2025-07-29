@@ -19,8 +19,8 @@
 	onMount(async () => {
 		let data = $modalStore[0].meta;
 		let m = await fetchMechanicFromServer(data);
-		console.log('Fetch mechanic returned');
-		console.log(m);
+		// console.log('Fetch mechanic returned');
+		// console.log(m);
 		if ('error' in m) {
 			error = m.error;
 		} else {
@@ -34,7 +34,7 @@
 
 	function toggleExpand() {
 		isExpanded = !isExpanded;
-		console.log(isExpanded);
+		// console.log(isExpanded);
 	}
 
 	let drawerStore = getDrawerStore();

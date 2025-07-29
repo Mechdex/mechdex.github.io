@@ -50,6 +50,8 @@
 	}
 
 	onMount(() => {
+		// console.log = () => {};
+
 		updateScreenType();
 		window.addEventListener('resize', updateScreenType);
 

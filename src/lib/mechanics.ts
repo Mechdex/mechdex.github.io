@@ -29,7 +29,7 @@ export async function fetchMechanicFromServer(data: {
 }): Promise<Mechanic | { error: string; content: string }> {
 	const cachedMechanic = get(loadedMechanics).find((m) => m.symbol === data.symbol);
 	if (cachedMechanic) {
-		console.log(`Loaded ${data.symbol} from cache.`);
+		// console.log(`Loaded ${data.symbol} from cache.`);
 		return cachedMechanic;
 	}
 
@@ -45,7 +45,7 @@ export async function fetchMechanicFromServer(data: {
 		}
 
 		loadedMechanics.update((mechanics) => [...mechanics, parsedMechanic]);
-		console.log(parsedMechanic);
+		// console.log(parsedMechanic);
 		return parsedMechanic;
 	} catch (err) {
 		return { error: 'Mechanic failed to load.', content: err as string };

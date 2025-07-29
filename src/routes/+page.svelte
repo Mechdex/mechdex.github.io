@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ReadingPanel from './ReadingPanel.svelte';
+
 	// Svelte/SvelteKit Imports
 	import { onMount, tick } from 'svelte';
 
@@ -42,6 +44,9 @@
 	import ChevronDoubleLeftIcon from '~icons/mdi/chevron-double-left';
 	import ChevronDoubleRightIcon from '~icons/mdi/chevron-double-right';
 	import { prefersReducedMotionStore } from '@skeletonlabs/skeleton';
+	import { getModalStore } from '@skeletonlabs/skeleton';
+
+	const modalStore = getModalStore();
 
 	// --- SVELTE 5 STATE ---
 
@@ -57,7 +62,8 @@
 	let filterChipNavDiv: HTMLDivElement;
 	let filterChipNavScrollPercent = $state(0);
 	let isSidePanelChanging = $state(false);
-	let isDisplayedMechanicChanging = $state(false);
+	let outerGrid: HTMLDivElement;
+	let getOuterGridWidth = () => outerGrid?.clientWidth || 0;
 
 	// --- DERIVED STATE ---
 
@@ -102,10 +108,10 @@
 			if (cache) {
 				try {
 					if (JSON.parse(cache).length > 0) {
-						console.log('Using cache');
+						// console.log('Using cache');
 						conciseMechanics.set(JSON.parse(cache));
 					} else {
-						console.log('No cache');
+						// console.log('No cache');
 						await populateConciseMechanics();
 					}
 				} catch (e) {
@@ -113,7 +119,7 @@
 					await populateConciseMechanics();
 				}
 			} else {
-				console.log('No cache');
+				// console.log('No cache');
 				await populateConciseMechanics();
 			}
 		} catch (e) {
@@ -128,15 +134,15 @@
 		}
 
 		const results = searchEngine.search(inputStage);
-		console.log('Results for search:');
-		console.log(results);
+		// console.log('Results for search:');
+		// console.log(results);
 		if (results.length === 0) {
 			return [];
 		}
 
 		const mechanicsMap = new Map($conciseMechanics.map((m) => [m.symbol, m]));
-		console.log('Mechanics are: ', $conciseMechanics);
-		console.log();
+		// console.log('Mechanics are: ', $conciseMechanics);
+		// console.log();
 		return results.map((r) => mechanicsMap.get(r.ref)) as ConciseMechanic[];
 	}
 
@@ -153,8 +159,8 @@
 	function refreshDisplayedMechanics() {
 		currentSearchTerm = inputStage;
 		let mechanics = searchMechanics();
-		console.log('While refreshing, ');
-		console.log(mechanics);
+		// console.log('While refreshing, ');
+		// console.log(mechanics);
 		// Shuffle the full list when not searching. Search results are relevance-ordered.
 		if (!currentSearchTerm.trim()) {
 			mechanics = shuffleMechanics(mechanics);
@@ -173,6 +179,22 @@
 		refreshDisplayedMechanics();
 	}
 
+	function openModalForMechanic(mechanic: Mechanic) {
+		modalStore.trigger({
+			type: 'component',
+			backdropClasses: '!overflow-y-auto custom-scrollbar',
+			modalClasses: '',
+			component: {
+				ref: ReadingPanel,
+
+				props: {
+					currentDisplayedMechanic: mechanic,
+					setSidePanelState,
+					asModal: true
+				}
+			}
+		});
+	}
 	function handleSelectAllCategories(e: UIEvent) {
 		e.stopPropagation();
 		const newState = !allCategoriesSelected;
@@ -190,6 +212,10 @@
 			return;
 		}
 
+		if ($screenType == 'sm') {
+			openModalForMechanic(m as Mechanic);
+			return;
+		}
 		currentDisplayedMechanic = m as Mechanic;
 		await tick();
 		if ($sidePanelState === 'hidden') {
@@ -269,7 +295,9 @@
 		if ($sidePanelState === 'hidden') {
 			num_cols = $screenType === 'sm' ? 2 : Math.max(1, Math.floor(0.0055 * window.innerWidth - 2));
 		} else {
-			num_cols = $screenType === 'md' ? 2 : 3;
+			num_cols = Math.floor(
+				($screenType === 'sm' ? 2 : Math.max(1, Math.floor(0.0055 * window.innerWidth - 2))) / 2
+			);
 		}
 
 		if ($gridLayoutType == 'compact') {
@@ -432,7 +460,8 @@
 
 		<div
 			style:grid-template-columns="repeat({num_cols}, minmax(0, 1fr))"
-			class="relative grid h-full min-h-[50vh] w-full auto-rows-min gap-4 rounded-lg bg-surface-800 p-4 transition-all duration-200"
+			bind:this={outerGrid}
+			class="relative grid h-full max-h-fit min-h-[50vh] w-full shrink-0 auto-rows-max gap-4 rounded-lg bg-surface-800 p-4 transition-all duration-200"
 			style:opacity={isSidePanelChanging ? '0%' : '100%'}
 		>
 			{#each displayedMechanics as mechanic (mechanic.symbol)}
@@ -442,6 +471,7 @@
 						style:opacity={isSidePanelChanging ? '0%' : '100%'}
 					>
 						<MechanicCard
+							{getOuterGridWidth}
 							isHidden={isSidePanelChanging}
 							{mechanic}
 							index={initialLoad ? displayedMechanics.indexOf(mechanic) : -1}
@@ -482,120 +512,11 @@
 	<!-- Side Panel for Mechanic Details -->
 	<div
 		class="side-panel custom-scrollbar absolute right-0 h-full w-1/2 overflow-y-auto rounded-lg bg-surface-800"
-		style="box-shadow: inset 2px 2px 16px black"
 		style:opacity={$sidePanelState === 'hidden' ? 0 : 1}
 		style:pointer-events={$sidePanelState === 'hidden' ? 'none' : 'auto'}
 	>
 		{#if currentDisplayedMechanic}
-			<div class="flex h-full w-full flex-row">
-				<div class="custom-scrollbar pr-15 flex-1 overflow-y-auto rounded-lg p-10">
-					<div class="flex w-full flex-col items-center space-y-6 text-center">
-						<h3 class="h3" style:color={mechanicColors[currentDisplayedMechanic.category]}>
-							{currentDisplayedMechanic.category}
-						</h3>
-						<h1
-							class="mechanic-heading h1 inline-flex flex-wrap items-center justify-center gap-x-2"
-						>
-							<span>{currentDisplayedMechanic.name}</span>
-							<span>/</span>
-							<span
-								class="rounded-lg p-2 text-surface-900"
-								style:background-color={mechanicColors[currentDisplayedMechanic.category]}
-							>
-								{currentDisplayedMechanic.symbol}
-							</span>
-						</h1>
-						<h2 class="h4 font-light">{currentDisplayedMechanic.short_description}</h2>
-					</div>
-
-					<hr class="side-panel-hr !my-8 !border-primary-500 transition-all duration-200" />
-
-					<article
-						class="prose max-w-none prose-h2:text-primary-500 prose-h3:text-white prose-p:text-white prose-li:text-white prose-li:marker:text-primary-500"
-					>
-						<h2>Description</h2>
-						<p>{@html marked.parse(currentDisplayedMechanic.long_description)}</p>
-						<h2>Problems Solved</h2>
-						{#each currentDisplayedMechanic.solved_problems as problem}
-							<h3 class="h3 underline decoration-primary-500 decoration-2 underline-offset-2">
-								{problem.title}
-							</h3>
-							<p>{problem.description}</p>
-						{/each}
-						<h2>Examples</h2>
-						{#each currentDisplayedMechanic.examples as example}
-							<h3 class="h3 underline decoration-primary-500 decoration-2 underline-offset-2">
-								{example.title}
-							</h3>
-							<p>{example.description}</p>
-						{/each}
-					</article>
-				</div>
-				<div class="m-2 flex flex-col space-y-4 pb-5">
-					<button
-						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700"
-						onclick={() => setSidePanelState('hidden')}
-					>
-						<CloseIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
-					</button>
-					<button
-						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700"
-						onclick={() =>
-							$sidePanelState == 'full' ? setSidePanelState('split') : setSidePanelState('full')}
-					>
-						{#if $sidePanelState == 'full'}
-							<ChevronDoubleRightIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
-						{:else}
-							<ChevronDoubleLeftIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
-						{/if}
-					</button>
-					<button
-						onclick={() =>
-							$pinnedMechanics.find((p) => p.symbol == currentDisplayedMechanic?.symbol)
-								? ($pinnedMechanics =
-										[...$pinnedMechanics].filter(
-											(p) => p.symbol != currentDisplayedMechanic?.symbol
-										) || [])
-								: ($pinnedMechanics = [...$pinnedMechanics, currentDisplayedMechanic as Mechanic])}
-						class="h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700 {$pinnedMechanics.find(
-							(f) => f.symbol == currentDisplayedMechanic?.symbol
-						)
-							? 'variant-ringed-primary'
-							: ''}"
-					>
-						<PinIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
-					</button>
-					{#each $pinnedMechanics as mechanic, i}
-						<button
-							class="aspect-square rounded-lg border p-1 text-center text-white"
-							style="border-color: {mechanicColors[mechanic.category]} !important"
-							style:background-color={currentDisplayedMechanic.symbol == mechanic.symbol
-								? mechanicColors[mechanic.category]
-								: 'transparent'}
-							onclick={() => (currentDisplayedMechanic = mechanic)}
-						>
-							{mechanic.symbol}
-						</button>
-					{/each}
-					<div class="flex-1"></div>
-					{#if !Object.hasOwn(currentDisplayedMechanic, 'isHumanWritten') || !(currentDisplayedMechanic as Mechanic & { isHumanWritten: boolean }).isHumanWritten}
-						<div class="mb-10 aspect-square w-full">
-							<div class="peer aspect-square w-full">
-								<HammerWrenchIcon class="w-full text-lg text-surface-100" />
-							</div>
-							<div
-								class="card variant-filled-surface pointer-events-none fixed bottom-0 right-0 z-[60] p-4 opacity-0 transition-opacity peer-hover:opacity-100"
-							>
-								<p>
-									This mechanic's data is a placeholder generated by AI. It will be phased out soon
-									for better-quality, human-written content.
-								</p>
-								<p>If you'd like to rewrite it yourself, please contribute to the database!</p>
-							</div>
-						</div>
-					{/if}
-				</div>
-			</div>
+			<ReadingPanel {currentDisplayedMechanic} {setSidePanelState}></ReadingPanel>
 		{/if}
 	</div>
 </div>

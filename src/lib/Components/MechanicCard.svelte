@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { gridLayoutType, gsap_xto, loadedMechanics, mechanicColors } from '$lib/stores';
+	import {
+		gridLayoutType,
+		gsap_xto,
+		loadedMechanics,
+		mechanicColors,
+		screenType,
+		sidePanelState
+	} from '$lib/stores';
 	import type { ConciseMechanic, Mechanic, MechanicCategory } from '$lib/types';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import fitty from 'fitty';
@@ -15,27 +22,28 @@
 	export let mechanic: ConciseMechanic & { category: string };
 	export let initialLoad: boolean = false;
 	export let isHidden = false;
+	export let getOuterGridWidth: () => number;
+	let outerGridWidth = 0;
 
-	export let onclick: (mechanic: { symbol: string; category: MechanicCategory }) => void;
+	export let onclick: (mechanic: { symbol: string; category: MechanicCategory }) => Promise<void>;
 
 	let color = mechanicColors[mechanic.category as MechanicCategory];
 	let cardDiv: HTMLDivElement;
 
+	$: minNameSize = $screenType == 'sm' || $sidePanelState == 'split' ? 14 : 18;
+	$: minDescSize = $screenType == 'sm' || $sidePanelState == 'split' ? 14 : 16; // Look I'm sorry I know I shouldn't below 16px but some cards just don't fit otherwise
+	$: minSideSize = $screenType == 'sm' || $sidePanelState == 'split' ? 8 : 12; //
 	$: compactView = $gridLayoutType == 'compact';
 
 	gridLayoutType.subscribe((n) => {
-		if (n == 'normal') {
-			fitty('.name-heading', {
-				minSize: 18,
-				multiLine: true
-			});
-		} else {
-			fitty('.name-heading', {
-				minSize: 16,
-				maxSize: 16,
-				multiLine: true
-			});
-		}
+		refitText();
+	});
+
+	sidePanelState.subscribe((state) => {
+		outerGridWidth = getOuterGridWidth();
+		setTimeout(refitText, 100); // Yep.
+
+		// console.log('side panel changed to', state);
 	});
 
 	let isMechanicLoaded = false;
@@ -43,21 +51,30 @@
 		isMechanicLoaded = mechanics.find((m) => m.symbol == mechanic.symbol) ? true : false;
 	});
 
+	function refitText() {
+		fitty('.name-heading', {
+			minSize: minNameSize,
+			maxSize: 18,
+			multiLine: true
+		});
+		fitty('.description-heading', {
+			minSize: minDescSize,
+			maxSize: 18,
+			multiLine: true
+		});
+		fitty('.side-heading', {
+			minSize: minSideSize,
+			maxSize: 18,
+			multiLine: false
+		});
+	}
 	onMount(() => {
 		const controls = animate(
 			cardDiv,
 			{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
 			{ duration: 0.3, delay: index == -1 ? 0 : index * 0.1, ease: 'backOut' }
 		);
-
-		fitty('.description-heading', {
-			minSize: 16,
-			multiLine: true
-		});
-		fitty('.name-heading', {
-			minSize: 18,
-			multiLine: true
-		});
+		refitText();
 
 		return () => {
 			controls.stop();

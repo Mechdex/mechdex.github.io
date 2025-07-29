@@ -338,7 +338,7 @@
 
 <svelte:window on:resize={updateGridSize} />
 
-<div class="relative flex h-full w-full flex-row overflow-hidden p-2">
+<div class="relative flex h-full w-full flex-row overflow-hidden p-2 bg-surface-900">
 	<!-- Main Content Panel -->
 	<div
 		class="main-panel custom-scrollbar offset z-30 flex w-full flex-col space-y-6 overflow-x-hidden overflow-y-scroll bg-surface-900 p-2"

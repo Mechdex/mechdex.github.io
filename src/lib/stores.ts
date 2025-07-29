@@ -16,7 +16,7 @@ export let setSearchEngine = (e: lunr.Index) => {
 // loadedMechanics is the cache of all mechanics.
 
 export function gsap_xto(targets: gsap.TweenTarget, vars: gsap.TweenVars): gsap.core.Tween {
-	console.log(get(prefersReducedMotionStore));
+	// console.log(get(prefersReducedMotionStore));
 	if (get(prefersReducedMotionStore)) {
 		return gsap.set(targets, vars);
 	}

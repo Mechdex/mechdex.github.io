@@ -9,6 +9,7 @@
 	import type { Mechanic } from '$lib/types';
 	import { marked } from 'marked';
 	import { getModalStore } from '@skeletonlabs/skeleton';
+	import { fly } from 'svelte/transition';
 
 	export let currentDisplayedMechanic: Mechanic;
 	export let setSidePanelState: (a: 'hidden' | 'split' | 'full') => void;
@@ -26,7 +27,7 @@
 </script>
 
 <div
-	class="flex h-full w-full flex-row bg-surface-800 relative {asModal ? 'rounded-lg' : ''}"
+	class="relative flex h-full w-full flex-row bg-surface-800 {asModal ? 'rounded-lg' : ''}"
 	style={asModal ? '' : 'box-shadow: inset 2px 2px 16px black'}
 >
 	<div class="custom-scrollbar {asModal ? '' : 'pr-15'} flex-1 overflow-y-auto rounded-lg p-10">
@@ -72,7 +73,7 @@
 	</div>
 	{#if asModal}
 		<button
-			class="absolute top-2 right-2 h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700"
+			class="absolute right-2 top-2 h-fit w-fit rounded-full p-2 transition-all hover:bg-surface-700"
 			onclick={close}
 		>
 			<CloseIcon color="rgb(var(--color-primary-500))" font-size="1.2rem" />
@@ -115,7 +116,8 @@
 				</button>
 				{#each $pinnedMechanics as mechanic, i}
 					<button
-						class="aspect-square rounded-lg border p-1 text-center text-white"
+						transition:fly={{ x: 25, duration: 50 }}
+						class="aspect-square rounded-lg border p-1 text-center text-white transition-all"
 						style="border-color: {mechanicColors[mechanic.category]} !important"
 						style:background-color={currentDisplayedMechanic.symbol == mechanic.symbol
 							? mechanicColors[mechanic.category]
@@ -128,8 +130,10 @@
 			{/if}
 			<div class="flex-1"></div>
 			{#if !Object.hasOwn(currentDisplayedMechanic, 'isHumanWritten') || !(currentDisplayedMechanic as Mechanic & { isHumanWritten: boolean }).isHumanWritten}
-				<div class="mb-10 aspect-square w-full">
-					<div class="peer aspect-square w-full">
+				<div class="aspect-square w-full">
+					<div
+						class="peer variant-ghost-surface grid aspect-square w-full place-items-center rounded-lg"
+					>
 						<HammerWrenchIcon class="w-full text-lg text-surface-100" />
 					</div>
 					<div

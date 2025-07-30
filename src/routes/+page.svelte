@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ReadingPanel from './ReadingPanel.svelte';
+	import ReadingPanel from '../lib/Components/ReadingPanel.svelte';
 
 	// Svelte/SvelteKit Imports
 	import { onMount, tick } from 'svelte';
@@ -338,7 +338,7 @@
 
 <svelte:window on:resize={updateGridSize} />
 
-<div class="relative flex h-full w-full flex-row overflow-hidden p-2 bg-surface-900">
+<div class="relative flex h-full w-full flex-row overflow-hidden bg-surface-900 p-2">
 	<!-- Main Content Panel -->
 	<div
 		class="main-panel custom-scrollbar offset z-30 flex w-full flex-col space-y-6 overflow-x-hidden overflow-y-scroll bg-surface-900 p-2"
@@ -355,7 +355,7 @@
 				class="input flex-1 px-3"
 				bind:value={inputStage}
 				onkeydown={(e) => e.key === 'Enter' && refreshDisplayedMechanics()}
-				placeholder="Search for a mechanic's title, description, use cases..."
+				placeholder="Search for a mechanic's title, description, problems... (e.g. 'immersion in cutscenes')"
 			/>
 			<button class="variant-filled-primary btn" onclick={refreshDisplayedMechanics}>
 				<SearchIcon style="font-size: 1.2rem;" />

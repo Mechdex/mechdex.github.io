@@ -25,7 +25,7 @@
 	export let getOuterGridWidth: () => number;
 	let outerGridWidth = 0;
 
-	export let onclick: (mechanic: { symbol: string; category: MechanicCategory }) => Promise<void>;
+	export let onclick: (mechanic: { symbol: string; category: MechanicCategory }) => void;
 
 	let color = mechanicColors[mechanic.category as MechanicCategory];
 	let cardDiv: HTMLDivElement;
@@ -34,22 +34,6 @@
 	$: minDescSize = $screenType == 'sm' || $sidePanelState == 'split' ? 14 : 16; // Look I'm sorry I know I shouldn't below 16px but some cards just don't fit otherwise
 	$: minSideSize = $screenType == 'sm' || $sidePanelState == 'split' ? 8 : 12; //
 	$: compactView = $gridLayoutType == 'compact';
-
-	gridLayoutType.subscribe((n) => {
-		refitText();
-	});
-
-	sidePanelState.subscribe((state) => {
-		outerGridWidth = getOuterGridWidth();
-		setTimeout(refitText, 100); // Yep.
-
-		// console.log('side panel changed to', state);
-	});
-
-	let isMechanicLoaded = false;
-	loadedMechanics.subscribe((mechanics) => {
-		isMechanicLoaded = mechanics.find((m) => m.symbol == mechanic.symbol) ? true : false;
-	});
 
 	function refitText() {
 		fitty('.name-heading', {
@@ -68,13 +52,38 @@
 			multiLine: false
 		});
 	}
+
+	gridLayoutType.subscribe((n) => {
+		refitText();
+	});
+
+	// sidePanelState.subscribe((state) => {
+	// 	outerGridWidth = getOuterGridWidth();
+	// 	setTimeout(refitText, 100); // Yep.
+
+	// 	// console.log('side panel changed to', state);
+	// }); // <-- single handedly made the whole site unresponsive
+	
+	let isMechanicLoaded = false;
+	loadedMechanics.subscribe((mechanics) => {
+		isMechanicLoaded = mechanics.find((m) => m.symbol == mechanic.symbol) ? true : false;
+	});
+
 	onMount(() => {
 		const controls = animate(
 			cardDiv,
 			{ y: [index == -1 ? 0 : 25, 0], opacity: [0, 1] },
 			{ duration: 0.3, delay: index == -1 ? 0 : index * 0.1, ease: 'backOut' }
 		);
-		refitText();
+
+		fitty('.description-heading', {
+			minSize: 16,
+			multiLine: true
+		});
+		fitty('.name-heading', {
+			minSize: 18,
+			multiLine: true
+		});
 
 		return () => {
 			controls.stop();

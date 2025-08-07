@@ -446,9 +446,9 @@
 			{#if currentSearchTerm}
 				for "<span class="underline decoration-primary-500 decoration-2 underline-offset-2"
 					>{currentSearchTerm}</span
-				>" and
+				>"
 			{/if}
-			<b>{numActiveCategoriesSelected}</b> categories.
+			and <b>  {numActiveCategoriesSelected}</b> categories.
 		</p>
 
 		{#if initialLoad}
